@@ -321,7 +321,7 @@
       user-select: none;
     }
 
-    /* 第一問：問題とキューブ画像（4.png）の横並びレイアウト */
+    /* 第一問：問題とキューブ画像（4.png）の横並び */
     .q1-content-flex {
       display: flex;
       align-items: center;
@@ -394,7 +394,6 @@
       text-align: center;
     }
 
-    /* 「答えは果物」の中央配置 */
     .hint-label-center {
       font-size: 1.05rem;
       color: #333;
@@ -638,7 +637,7 @@
   </nav>
 
   <main>
-    <!-- タブ1: 創世記（神話テキスト反映版） -->
+    <!-- タブ1: 創世記 -->
     <section id="tab-myth" class="tab-content active">
       <div class="myth-scroll">
         <div class="myth-header">
@@ -681,7 +680,7 @@
       </div>
     </section>
 
-    <!-- タブ3: 第一問（横に4.pngを配置＆答えは果物を中央配置） -->
+    <!-- タブ3: 第一問 -->
     <section id="tab-q1" class="tab-content">
       <div class="puzzle-panel">
         <div class="puzzle-header">
@@ -690,7 +689,6 @@
         </div>
 
         <div class="board-container">
-          <!-- 問題マス目と 4.png の横並びコンテナ -->
           <div class="q1-content-flex">
             <div class="q1-main-puzzle">
               <div class="grid-wrap">
@@ -712,13 +710,11 @@
               <div class="equation">①②③④＝？</div>
             </div>
 
-            <!-- 4.png の画像 -->
             <div class="q1-cube-image-wrap">
               <img src="4.png" alt="ルービックキューブ" class="q1-cube-image" onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\'font-size:3rem;\'>🎲</span>';">
             </div>
           </div>
 
-          <!-- 「答えは果物」を中央配置 -->
           <div class="hint-label-center">答えは果物</div>
         </div>
 
@@ -837,21 +833,22 @@
       document.getElementById('tab-' + tabId).classList.add('active');
     }
 
+    /* 第一問：送信ボタン（またはEnterキー）を押した時のみ判定 */
     function checkQ1() {
-      const val = document.getElementById('q1-input').value.trim().toLowerCase();
+      const inputEl = document.getElementById('q1-input');
+      const val = inputEl.value.trim().toLowerCase();
       const msg = document.getElementById('q1-msg');
       
+      if (!val) return; // 空白送信時は無視
+
       if (val === 'くり' || val === 'クリ' || val === '栗' || val === 'kuri') {
         playSuccessSound();
         msg.className = 'msg-box correct';
-        msg.textContent = '正解！ 機密ロックが解除され、「第二問」が解放されました。';
+        msg.textContent = '正解！ 上部のメニューに「第二問」が出現しました。';
         
+        /* 第二問タブを表示（※自動遷移はせず、ボタンのみ出現） */
         const q2Btn = document.getElementById('q2-tab-btn');
         q2Btn.style.setProperty('display', 'flex', 'important');
-        
-        setTimeout(() => {
-          switchTab('q2', q2Btn);
-        }, 1600);
       } else {
         playErrorSound();
         msg.className = 'msg-box wrong';
@@ -859,10 +856,17 @@
       }
     }
 
-    document.getElementById('q1-input').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') checkQ1();
+    /* 日本語変換中（IME確定）のEnter誤爆を防ぐリスナー */
+    const q1Input = document.getElementById('q1-input');
+    q1Input.addEventListener('keydown', (e) => {
+      if (e.isComposing || e.keyCode === 229) return; // 漢字・ひらがな変換確定時はスルー
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        checkQ1();
+      }
     });
 
+    /* 第二問 カラー入力ロジック */
     const selectedColors = [];
     const MAX_SELECT = 10;
 
