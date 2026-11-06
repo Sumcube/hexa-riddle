@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>六面世界の創世記</title>
+  <title>六面世界からの脱出</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Klee+One:wght@400;600&family=Noto+Serif+JP:wght@400;600;700&display=swap" rel="stylesheet">
@@ -905,6 +905,17 @@
   </main>
 
   <script>
+    /* 日記のページめくり関数 */
+    function changeDiaryPage(pageIndex) {
+      playTone(500, 'sine', 0.08); // ページめくり音
+      if (pageIndex === 2) {
+        document.getElementById('spread-1').style.display = 'none';
+        document.getElementById('spread-2').style.display = 'flex';
+      } else {
+        document.getElementById('spread-2').style.display = 'none';
+        document.getElementById('spread-1').style.display = 'flex';
+      }
+    }
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playTone(freq, type = 'sine', duration = 0.15) {
       if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -952,7 +963,7 @@
       if (val === 'くり' || val === 'クリ' || val === '栗' || val === 'kuri') {
         playSuccessSound();
         msg.className = 'msg-box correct';
-        msg.textContent = '正解！ 上部のメニューに「第二問」が出現しました。';
+        msg.textContent = '正解！ 「第二問」が出現しました。';
         
         /* 第二問タブを表示（※自動遷移はせず、ボタンのみ出現） */
         const q2Btn = document.getElementById('q2-tab-btn');
@@ -960,7 +971,7 @@
       } else {
         playErrorSound();
         msg.className = 'msg-box wrong';
-        msg.textContent = '不正解。もう一度考え直してください。';
+        msg.textContent = '不正解。';
       }
     }
 
@@ -1016,11 +1027,11 @@
       if (isMatch) {
         playSuccessSound();
         msg.className = 'msg-box correct';
-        msg.textContent = '正解！ 素晴らしい洞察力です。';
+        msg.textContent = '正解！ ';
       } else {
         playErrorSound();
         msg.className = 'msg-box wrong';
-        msg.textContent = '不正解。色の順序や文字数を確かめてください。';
+        msg.textContent = '不正解。';
       }
     }
   </script>
