@@ -713,86 +713,170 @@
       min-width: 60px;
     }
 
-    /* ダイアログ全体のコンテナ */
-    .intro-dialog-wrap {
+   /* 画面全体を暗くして背後を完全操作不能にするオーバーレイ */
+    .intro-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(4px);
+      z-index: 999999;
       display: flex;
-      align-items: flex-end;
-      gap: 16px;
-      max-width: 90%;
-      width: 520px;
-      animation: popBubble 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: opacity 0.5s ease;
     }
 
-    /* 発言者（アイコン＋名前） */
+    /* 画面ど真ん中のダイアログコンテナ */
+    .intro-dialog-wrap {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      max-width: 90%;
+      width: 600px;
+      pointer-events: none; /* クリックを親オーバーレイに通す */
+    }
+
+    /* 発言者アイコンと名前 */
     .intro-speaker {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       flex-shrink: 0;
     }
 
     .intro-avatar {
-      width: 64px;
-      height: 64px;
+      width: 72px;
+      height: 72px;
       border-radius: 50%;
       border: 2px solid var(--gold-accent);
-      background: #1e2230;
+      background: #141722;
       object-fit: cover;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 0 16px rgba(212, 175, 55, 0.4);
     }
 
     .intro-name {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       color: #ffd875;
       font-weight: bold;
-      letter-spacing: 0.1em;
-      text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+      letter-spacing: 0.12em;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.8);
     }
 
-    /* フキダシデザイン */
+    /* すりガラス風・半透明のフキダシ */
     .intro-bubble {
       flex: 1;
-      background: #ffffff;
-      color: #1a1a1a;
-      padding: 18px 24px;
-      border-radius: 18px;
-      font-size: 1.2rem;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #ffffff;
+      padding: 24px 30px;
+      border-radius: 16px;
+      font-size: 1.35rem;
       font-weight: 600;
       font-family: var(--font-hand);
       position: relative;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-      text-align: left;
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(255, 255, 255, 0.08);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+      min-height: 80px;
+      display: flex;
+      align-items: center;
     }
 
-    /* フキダシのしっぽ（左向き） */
+    /* 左向きのしっぽ（半透明枠線付き） */
+    .intro-bubble::before {
+      content: "";
+      position: absolute;
+      left: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 10px 10px 10px 0;
+      border-style: solid;
+      border-color: transparent rgba(255, 255, 255, 0.28) transparent transparent;
+    }
     .intro-bubble::after {
       content: "";
       position: absolute;
-      bottom: 18px;
-      left: -10px;
-      border-width: 8px 12px 8px 0;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 9px 9px 9px 0;
       border-style: solid;
-      border-color: transparent #ffffff transparent transparent;
+      border-color: transparent rgba(20, 24, 34, 0.85) transparent transparent;
     }
+
+    /* 左下：スキップボタン */
+    .intro-skip-btn {
+      position: absolute;
+      left: 30px;
+      bottom: 28px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #a0a6b8;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-family: var(--font-serif);
+      cursor: pointer;
+      pointer-events: auto;
+      transition: all 0.25s;
+    }
+    .intro-skip-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* 右下：タップガイド */
+    .intro-tap-guide {
+      position: absolute;
+      right: 32px;
+      bottom: 30px;
+      font-size: 0.95rem;
+      color: #ffd875;
+      font-family: var(--font-serif);
+      letter-spacing: 0.1em;
+      pointer-events: none;
+      animation: pulseGuide 1.5s infinite ease-in-out;
+    }
+
+    @keyframes popBubble {
+      0% { transform: scale(0.92); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes pulseGuide {
+      0%, 100% { opacity: 0.4; transform: translateX(0); }
+      50% { opacity: 1; transform: translateX(4px); }
+    }
+    
   </style>
 </head>
 <body>
 
-  <!-- オープニング暗転＆アイコン付きフキダシ -->
-  <div id="intro-overlay" class="intro-overlay" onclick="nextIntro()">
+  <!-- オープニング暗転＆中央すりガラス会話 -->
+  <div id="intro-overlay" class="intro-overlay">
+    <!-- 画面中央の会話ブロック -->
     <div class="intro-dialog-wrap">
-      <!-- 左側：アイコンと名前 -->
       <div class="intro-speaker">
-        <img src="5.png" alt="アイコン" class="intro-avatar" onerror="this.onerror=null; this.src=''; this.style.display='none';">
+        <img src="5.png" alt="？？？" class="intro-avatar" onerror="this.onerror=null; this.src=''; this.style.display='none';">
         <span class="intro-name">？？？</span>
       </div>
-      <!-- 右側：フキダシ -->
       <div id="intro-bubble" class="intro-bubble">…~い。</div>
     </div>
-    <div class="intro-tap-guide">画面をタップして進む</div>
-    
+
+    <!-- 左下：スキップボタン -->
+    <button class="intro-skip-btn" onclick="skipIntro(event)">会話を全てスキップする ➔</button>
+
+    <!-- 右下：タップで進む案内 -->
+    <div class="intro-tap-guide">タップして進む ▼</div>
   </div>
+  
   <div class="cube-dust" style="left: 12%; animation-delay: 0s;"></div>
   <div class="cube-dust" style="left: 30%; animation-delay: 5s;"></div>
   <div class="cube-dust" style="left: 75%; animation-delay: 2s;"></div>
