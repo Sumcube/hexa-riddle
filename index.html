@@ -1346,7 +1346,21 @@
     ];
     let introStep = 0;
 
-    function nextIntro() {
+    function finishIntro() {
+      const overlay = document.getElementById('intro-overlay');
+      if (!overlay) return;
+      overlay.style.opacity = '0';
+      overlay.style.pointerEvents = 'none';
+      setTimeout(() => {
+        overlay.remove();
+      }, 500);
+    }
+
+    /* どこをクリック・タップしても確実に進行 */
+    function handleOverlayClick(e) {
+      // スキップボタンを押したときはそちらの処理に任せる
+      if (e.target.closest('.intro-skip-btn')) return;
+
       introStep++;
       playTone(520, 'sine', 0.06);
 
@@ -1354,17 +1368,24 @@
         const bubble = document.getElementById('intro-bubble');
         bubble.textContent = introLines[introStep];
         bubble.style.animation = 'none';
-        bubble.offsetHeight; // リフロー発生でアニメーション再発火
-        bubble.style.animation = 'popBubble 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
+        bubble.offsetHeight;
+        bubble.style.animation = 'popBubble 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
       } else {
-        /* 最後のセリフの後に暗転をフェードアウトして削除 */
-        const overlay = document.getElementById('intro-overlay');
-        overlay.style.opacity = '0';
-        overlay.style.pointerEvents = 'none';
-        setTimeout(() => {
-          overlay.remove();
-        }, 600);
+        finishIntro();
       }
+    }
+
+    /* スキップ処理 */
+    function skipIntro(e) {
+      e.stopPropagation(); // オーバーレイへのクリック伝播を阻止
+      playTone(400, 'sine', 0.08);
+      finishIntro();
+    }
+
+    // イベントリスナーをオーバーレイに直接登録
+    const overlayEl = document.getElementById('intro-overlay');
+    if (overlayEl) {
+      overlayEl.addEventListener('click', handleOverlayClick);
     }
   </script>
 </body>
