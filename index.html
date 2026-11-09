@@ -665,6 +665,53 @@
     }
     .msg-box.correct { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.4); }
     .msg-box.wrong { color: #f87171; text-shadow: 0 0 10px rgba(248, 113, 113, 0.4); }
+    
+    /* 第三問 UI */
+    .q3-content-flex {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .q3-board-right {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .q3-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .q3-grid {
+      display: grid;
+      border: 2px solid #000;
+    }
+    .q3-grid-4 {
+      grid-template-columns: repeat(4, 46px);
+      height: 46px;
+    }
+    .q3-grid-3 {
+      grid-template-columns: repeat(3, 46px);
+      height: 46px;
+    }
+    .q3-cell {
+      border: 1px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.45rem;
+      font-weight: bold;
+      color: #000;
+    }
+    .q3-factor {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #000;
+      min-width: 60px;
+    }
   </style>
 </head>
 <body>
@@ -683,7 +730,9 @@
     <button class="tab-btn active" onclick="switchTab('myth', this)">六面世界の創世記</button>
     <button class="tab-btn" onclick="switchTab('diary', this)">佐村健人の日記</button>
     <button class="tab-btn" onclick="switchTab('q1', this)">第一問</button>
+     <!-- 初期状態：非表示 -->
     <button id="q2-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q2', this)">第二問</button>
+    <button id="q3-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q3', this)">第三問</button>
   </nav>
 
   <main>
@@ -900,6 +949,68 @@
         <div id="q2-msg" class="msg-box"></div>
       </div>
     </section>
+    <!-- タブ5: 第三問 -->
+    <section id="tab-q3" class="tab-content">
+      <div class="puzzle-panel">
+        <div class="puzzle-header">
+          <h2 class="puzzle-title">第三問</h2>
+        </div>
+
+        <div class="board-container">
+          <div class="q3-content-flex">
+            <!-- 4.png 画像 -->
+            <div class="q1-cube-image-wrap">
+              <img src="4.png" alt="ルービックキューブ" class="q1-cube-image" onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\'font-size:3rem;\'>🎲</span>';">
+            </div>
+
+            <!-- マス目と倍率 -->
+            <div class="q3-board-right">
+              <!-- 上段 (4マス) -->
+              <div class="q3-row">
+                <div class="q3-grid q3-grid-4">
+                  <div class="q3-cell"></div>
+                  <div class="q3-cell">②</div>
+                  <div class="q3-cell"></div>
+                  <div class="q3-cell"></div>
+                </div>
+                <div class="q3-factor">× 6</div>
+              </div>
+
+              <!-- 中段 (4マス) -->
+              <div class="q3-row">
+                <div class="q3-grid q3-grid-4">
+                  <div class="q3-cell"></div>
+                  <div class="q3-cell"></div>
+                  <div class="q3-cell"></div>
+                  <div class="q3-cell"></div>
+                </div>
+                <div class="q3-factor">× 8</div>
+              </div>
+
+              <!-- 下段 (3マス) -->
+              <div class="q3-row">
+                <div class="q3-grid q3-grid-3">
+                  <div class="q3-cell">①</div>
+                  <div class="q3-cell"></div>
+                  <div class="q3-cell">③</div>
+                </div>
+                <div class="q3-factor">× 12</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 数式 -->
+          <div class="equation">①②③②＝？</div>
+        </div>
+
+        <div class="input-row">
+          <input type="text" id="q3-input" class="text-input" placeholder="カタカナ" autocomplete="off">
+          <button class="submit-btn" onclick="checkQ3()">送信</button>
+        </div>
+
+        <div id="q3-msg" class="msg-box"></div>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -958,7 +1069,7 @@
       
       if (!val) return; // 空白送信時は無視
 
-      if (val === 'くり' || val === 'クリ' || val === '栗' || val === 'kuri') {
+      if (val === 'くり') {
         playSuccessSound();
         msg.className = 'msg-box correct';
         msg.textContent = '正解！ 「第二問」が出現しました。';
@@ -1025,6 +1136,28 @@
       if (isMatch) {
         playSuccessSound();
         msg.className = 'msg-box correct';
+        msg.textContent = '正解！ 上部のメニューに「第三問」が出現しました。';
+        
+        /* 第三問タブを表示 */
+        const q3Btn = document.getElementById('q3-tab-btn');
+        if (q3Btn) q3Btn.style.setProperty('display', 'flex', 'important');
+      } else {
+        playErrorSound();
+        msg.className = 'msg-box wrong';
+        msg.textContent = '不正解。';
+      }
+    }
+    /* 第三問 判定 */
+    function checkQ3() {
+      const inputEl = document.getElementById('q3-input');
+      const val = inputEl.value.trim().toLowerCase();
+      const msg = document.getElementById('q3-msg');
+      
+      if (!val) return;
+
+      if (val === 'エンジン') {
+        playSuccessSound();
+        msg.className = 'msg-box correct';
         msg.textContent = '正解！ ';
       } else {
         playErrorSound();
@@ -1032,6 +1165,16 @@
         msg.textContent = '不正解。';
       }
     }
+
+    /* 第三問 IME確定誤爆防止付き Enterキー送信 */
+    const q3Input = document.getElementById('q3-input');
+    q3Input.addEventListener('keydown', (e) => {
+      if (e.isComposing || e.keyCode === 229) return;
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        checkQ3();
+      }
+    });
   </script>
 </body>
 </html>
