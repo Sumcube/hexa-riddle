@@ -1444,14 +1444,14 @@
       }
 
       if (val === 'エンジン') {
-        if (typeof playCorrect === 'function') playCorrect();
+        playSuccessSound();
         msg.className = 'msg-box correct';
         msg.style.display = 'block';
         msg.textContent = '正解！ 「第四問」が出現しました。';
         const q4 = document.getElementById('q4-tab-btn');
         if (q4) q4.style.setProperty('display', 'flex', 'important');
       } else {
-        if (typeof playWrong === 'function') playWrong();
+        playErrorSound();
         msg.className = 'msg-box wrong';
         msg.style.display = 'block';
         msg.textContent = '不正解。';
@@ -1487,12 +1487,12 @@
       }
 
       if (val === 'たな') {
-        if (typeof playCorrect === 'function') playCorrect();
+        playSuccessSound();
         msg.className = 'msg-box correct';
         msg.style.display = 'block';
         msg.textContent = '正解！';
       } else {
-        if (typeof playWrong === 'function') playWrong();
+        playErrorSound();
         msg.className = 'msg-box wrong';
         msg.style.display = 'block';
         msg.textContent = '不正解。';
