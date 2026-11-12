@@ -1431,28 +1431,31 @@
     }
     /* 第三問判定（「エンジン」のみ正解 -> 第四問出現） */
     function checkQ3() {
-      const val = document.getElementById('q3-input').value.trim();
-      const msg = document.getElementById('q3-msg');
+      const inputEl = document.getElementById('q3-input') || document.querySelector('#tab-q3 input');
+      const val = inputEl ? inputEl.value.trim() : '';
       if (!val) return;
+
+      let msg = document.getElementById('q3-msg');
+      if (!msg) {
+        msg = document.createElement('div');
+        msg.id = 'q3-msg';
+        const panel = document.querySelector('#tab-q3 .puzzle-panel') || document.getElementById('tab-q3');
+        if (panel) panel.appendChild(msg);
+      }
+
       if (val === 'エンジン') {
-        playCorrect();
+        if (typeof playCorrect === 'function') playCorrect();
         msg.className = 'msg-box correct';
+        msg.style.display = 'block';
         msg.textContent = '正解！ 上部のメニューに「第四問」が出現しました。';
         const q4 = document.getElementById('q4-tab-btn');
         if (q4) q4.style.setProperty('display', 'flex', 'important');
       } else {
-        playWrong();
+        if (typeof playWrong === 'function') playWrong();
         msg.className = 'msg-box wrong';
-        msg.textContent = '不正解。キューブの各パーツの数をよく観察してください。';
+        msg.style.display = 'block';
+        msg.textContent = '不正解。';
       }
-    }
-
-    const q3Input = document.getElementById('q3-input');
-    if (q3Input) {
-      q3Input.addEventListener('keydown', e => {
-        if (e.isComposing || e.keyCode === 229) return;
-        if (e.key === 'Enter') { e.preventDefault(); checkQ3(); }
-      });
     }
 /* 第四問判定（「たな」のみ正解・ひらがな以外禁止） */
     function checkQ4() {
