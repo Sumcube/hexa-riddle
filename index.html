@@ -857,7 +857,7 @@
       0%, 100% { opacity: 0.4; transform: translateX(0); }
       50% { opacity: 1; transform: translateX(4px); }
     }
-   /* 第四問のレイアウト（第二問と同じ白背景＋点線枠） */
+   /* 第四問のレイアウト（白背景＋点線枠・完全横並び） */
     .q4-board {
       display: flex;
       flex-direction: column;
@@ -871,12 +871,29 @@
       width: fit-content;
       max-width: 100%;
     }
+    .q4-row {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center;
+      gap: 20px;
+      white-space: nowrap;
+    }
+    .q4-blocks-area {
+      width: 160px;
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
+    }
     .q4-block {
       width: 42px;
       height: 42px;
       border: 2.5px solid #000000;
       border-radius: 5px;
       box-sizing: border-box;
+      flex-shrink: 0;
     }
     .q4-green  { background: #009944; }
     .q4-blue   { background: #0055bb; }
@@ -885,14 +902,14 @@
     .q4-arrow {
       font-size: 1.6rem;
       font-weight: bold;
-      color: #000;
+      color: #000000;
     }
     .q4-text {
       font-size: 1.7rem;
       font-weight: bold;
       letter-spacing: 0.28em;
-      color: #000;
-      min-width: 120px;
+      color: #000000;
+      min-width: 110px;
       text-align: center;
     }
   </style>
