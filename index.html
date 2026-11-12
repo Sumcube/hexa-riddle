@@ -857,7 +857,54 @@
       0%, 100% { opacity: 0.4; transform: translateX(0); }
       50% { opacity: 1; transform: translateX(4px); }
     }
-    
+    /* 第四問のレイアウト */
+    .q4-board {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      align-items: center;
+      margin: 10px 0 20px;
+    }
+    .q4-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      width: 100%;
+      max-width: 480px;
+    }
+    .q4-blocks-area {
+      width: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .q4-block {
+      width: 38px;
+      height: 38px;
+      border: 2px solid #0a1f18;
+      box-sizing: border-box;
+    }
+    .q4-gap {
+      width: 14px;
+    }
+    .q4-green { background: #009944; }
+    .q4-red   { background: #ff0000; }
+    .q4-white { background: #ffffff; }
+    .q4-arrow {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #000;
+    }
+    .q4-text {
+      font-size: 1.7rem;
+      font-weight: bold;
+      letter-spacing: 0.28em;
+      color: #000;
+      min-width: 120px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -897,6 +944,7 @@
      <!-- 初期状態：非表示 -->
     <button id="q2-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q2', this)">第二問</button>
     <button id="q3-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q3', this)">第三問</button>
+    <button id="q4-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q4', this)">第四問</button>
   </nav>
 
   <main>
@@ -1188,6 +1236,63 @@
         <div id="q3-msg" class="msg-box"></div>
       </div>
     </section>
+    <!-- タブ6: 第四問 -->
+    <section id="tab-q4" class="tab-content">
+      <div class="puzzle-panel">
+        <div class="puzzle-header">
+          <h2 class="puzzle-title">第四問</h2>
+          <p class="puzzle-desc">色と配置の法則から導かれる言葉を答えよ</p>
+        </div>
+
+        <div class="board-container">
+          <div class="q4-board">
+            <!-- 1行目: 緑3 + 隙間 + 緑2 -> しんりん -->
+            <div class="q4-row">
+              <div class="q4-blocks-area">
+                <div class="q4-block q4-green"></div>
+                <div class="q4-block q4-green"></div>
+                <div class="q4-block q4-green"></div>
+                <div class="q4-gap"></div>
+                <div class="q4-block q4-green"></div>
+                <div class="q4-block q4-green"></div>
+              </div>
+              <div class="q4-arrow">→</div>
+              <div class="q4-text">しんりん</div>
+            </div>
+
+            <!-- 2行目: 赤1 + 隙間 + 赤2 -> かえん -->
+            <div class="q4-row">
+              <div class="q4-blocks-area">
+                <div class="q4-block q4-red"></div>
+                <div class="q4-gap"></div>
+                <div class="q4-block q4-red"></div>
+                <div class="q4-block q4-red"></div>
+              </div>
+              <div class="q4-arrow">→</div>
+              <div class="q4-text">かえん</div>
+            </div>
+
+            <!-- 3行目: 緑1 + 白2 -> ？ -->
+            <div class="q4-row">
+              <div class="q4-blocks-area">
+                <div class="q4-block q4-green"></div>
+                <div class="q4-block q4-white"></div>
+                <div class="q4-block q4-white"></div>
+              </div>
+              <div class="q4-arrow">→</div>
+              <div class="q4-text">？</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-row">
+          <input type="text" id="q4-input" class="text-input" placeholder="ひらがなで入力" autocomplete="off">
+          <button class="submit-btn" onclick="checkQ4()">送信</button>
+        </div>
+
+        <div id="q4-msg" class="msg-box"></div>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -1324,25 +1429,62 @@
         msg.textContent = '不正解。';
       }
     }
-    /* 第三問 判定 */
+    /* 第三問判定（「エンジン」のみ正解 -> 第四問出現） */
     function checkQ3() {
-      const inputEl = document.getElementById('q3-input');
-      const val = inputEl.value.trim().toLowerCase();
+      const val = document.getElementById('q3-input').value.trim();
       const msg = document.getElementById('q3-msg');
-      
+      if (!val) return;
+      if (val === 'エンジン') {
+        playCorrect();
+        msg.className = 'msg-box correct';
+        msg.textContent = '正解！ 上部のメニューに「第四問」が出現しました。';
+        const q4 = document.getElementById('q4-tab-btn');
+        if (q4) q4.style.setProperty('display', 'flex', 'important');
+      } else {
+        playWrong();
+        msg.className = 'msg-box wrong';
+        msg.textContent = '不正解。キューブの各パーツの数をよく観察してください。';
+      }
+    }
+
+    const q3Input = document.getElementById('q3-input');
+    if (q3Input) {
+      q3Input.addEventListener('keydown', e => {
+        if (e.isComposing || e.keyCode === 229) return;
+        if (e.key === 'Enter') { e.preventDefault(); checkQ3(); }
+      });
+    }
+/* 第四問判定（「たな」のみ正解・ひらがな以外禁止） */
+    function checkQ4() {
+      const val = document.getElementById('q4-input').value.trim();
+      const msg = document.getElementById('q4-msg');
       if (!val) return;
 
-      if (val === 'エンジン') {
-        playSuccessSound();
+      if (!/^[ぁ-んー]+$/.test(val)) {
+        playWrong();
+        msg.className = 'msg-box wrong';
+        msg.textContent = 'ひらがなのみで入力してください。';
+        return;
+      }
+
+      if (val === 'たな') {
+        playCorrect();
         msg.className = 'msg-box correct';
         msg.textContent = '正解！ ';
       } else {
-        playErrorSound();
+        playWrong();
         msg.className = 'msg-box wrong';
         msg.textContent = '不正解。';
       }
     }
 
+    const q4Input = document.getElementById('q4-input');
+    if (q4Input) {
+      q4Input.addEventListener('keydown', e => {
+        if (e.isComposing || e.keyCode === 229) return;
+        if (e.key === 'Enter') { e.preventDefault(); checkQ4(); }
+      });
+    }
     /* 第三問 IME確定誤爆防止付き Enterキー送信 */
     const q3Input = document.getElementById('q3-input');
     q3Input.addEventListener('keydown', (e) => {
