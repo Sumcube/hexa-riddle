@@ -890,8 +890,9 @@
       width: 14px;
     }
     .q4-green { background: #009944; }
-    .q4-red   { background: #ff0000; }
     .q4-white { background: #ffffff; }
+    .q4-blue   { background: #0066cc; }
+    .q4-yellow { background: #ffd700; }
     .q4-arrow {
       font-size: 1.6rem;
       font-weight: bold;
@@ -1244,35 +1245,39 @@
           <p class="puzzle-desc">色と配置の法則から導かれる言葉を答えよ</p>
         </div>
 
-        <div class="board-container">
-          <div class="q4-board">
-            <!-- 1行目: 緑3 + 隙間 + 緑2 -> しんりん -->
+        <div class="q4-board">
+            <!-- 1行目: 緑3 -> もり -->
             <div class="q4-row">
               <div class="q4-blocks-area">
                 <div class="q4-block q4-green"></div>
                 <div class="q4-block q4-green"></div>
                 <div class="q4-block q4-green"></div>
-                <div class="q4-gap"></div>
-                <div class="q4-block q4-green"></div>
-                <div class="q4-block q4-green"></div>
               </div>
               <div class="q4-arrow">→</div>
-              <div class="q4-text">しんりん</div>
+              <div class="q4-text">もり</div>
             </div>
 
-            <!-- 2行目: 赤1 + 隙間 + 赤2 -> かえん -->
+            <!-- 2行目: 青2 -> きよ -->
             <div class="q4-row">
               <div class="q4-blocks-area">
-                <div class="q4-block q4-red"></div>
-                <div class="q4-gap"></div>
-                <div class="q4-block q4-red"></div>
-                <div class="q4-block q4-red"></div>
+                <div class="q4-block q4-blue"></div>
+                <div class="q4-block q4-blue"></div>
               </div>
               <div class="q4-arrow">→</div>
-              <div class="q4-text">かえん</div>
+              <div class="q4-text">きよ</div>
             </div>
 
-            <!-- 3行目: 緑1 + 白2 -> ？ -->
+            <!-- 3行目: 緑1 + 黄1 -> よこ -->
+            <div class="q4-row">
+              <div class="q4-blocks-area">
+                <div class="q4-block q4-green"></div>
+                <div class="q4-block q4-yellow"></div>
+              </div>
+              <div class="q4-arrow">→</div>
+              <div class="q4-text">よこ</div>
+            </div>
+
+            <!-- 4行目（問題）: 緑1 + 白2 -> ？ -->
             <div class="q4-row">
               <div class="q4-blocks-area">
                 <div class="q4-block q4-green"></div>
@@ -1283,7 +1288,6 @@
               <div class="q4-text">？</div>
             </div>
           </div>
-        </div>
 
         <div class="input-row">
           <input type="text" id="q4-input" class="text-input" placeholder="ひらがなで入力" autocomplete="off">
