@@ -1485,16 +1485,7 @@
         if (e.key === 'Enter') { e.preventDefault(); checkQ4(); }
       });
     }
-    /* 第三問 IME確定誤爆防止付き Enterキー送信 */
-    const q3Input = document.getElementById('q3-input');
-    q3Input.addEventListener('keydown', (e) => {
-      if (e.isComposing || e.keyCode === 229) return;
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        checkQ3();
-      }
-    });
-
+    
     /* オープニング進行ロジック */
     const introLines = [
       "…~い。お〜〜〜い。",
