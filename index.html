@@ -1447,7 +1447,7 @@
         if (typeof playCorrect === 'function') playCorrect();
         msg.className = 'msg-box correct';
         msg.style.display = 'block';
-        msg.textContent = '正解！ 上部のメニューに「第四問」が出現しました。';
+        msg.textContent = '正解！ 「第四問」が出現しました。';
         const q4 = document.getElementById('q4-tab-btn');
         if (q4) q4.style.setProperty('display', 'flex', 'important');
       } else {
@@ -1457,31 +1457,49 @@
         msg.textContent = '不正解。';
       }
     }
+    const q3Input = document.getElementById('q3-input') || document.querySelector('#tab-q3 input');
+    if (q3Input) {
+      q3Input.addEventListener('keydown', e => {
+        if (e.isComposing || e.keyCode === 229) return;
+        if (e.key === 'Enter') { e.preventDefault(); checkQ3(); }
+      });
+    }
 /* 第四問判定（「たな」のみ正解・ひらがな以外禁止） */
     function checkQ4() {
-      const val = document.getElementById('q4-input').value.trim();
-      const msg = document.getElementById('q4-msg');
+      const inputEl = document.getElementById('q4-input') || document.querySelector('#tab-q4 input');
+      const val = inputEl ? inputEl.value.trim() : '';
       if (!val) return;
 
+      let msg = document.getElementById('q4-msg');
+      if (!msg) {
+        msg = document.createElement('div');
+        msg.id = 'q4-msg';
+        const panel = document.querySelector('#tab-q4 .puzzle-panel') || document.getElementById('tab-q4');
+        if (panel) panel.appendChild(msg);
+      }
+
       if (!/^[ぁ-んー]+$/.test(val)) {
-        playWrong();
+        if (typeof playWrong === 'function') playWrong();
         msg.className = 'msg-box wrong';
+        msg.style.display = 'block';
         msg.textContent = 'ひらがなのみで入力してください。';
         return;
       }
 
       if (val === 'たな') {
-        playCorrect();
+        if (typeof playCorrect === 'function') playCorrect();
         msg.className = 'msg-box correct';
-        msg.textContent = '正解！ ';
+        msg.style.display = 'block';
+        msg.textContent = '正解！';
       } else {
-        playWrong();
+        if (typeof playWrong === 'function') playWrong();
         msg.className = 'msg-box wrong';
+        msg.style.display = 'block';
         msg.textContent = '不正解。';
       }
     }
 
-    const q4Input = document.getElementById('q4-input');
+    const q4Input = document.getElementById('q4-input') || document.querySelector('#tab-q4 input');
     if (q4Input) {
       q4Input.addEventListener('keydown', e => {
         if (e.isComposing || e.keyCode === 229) return;
