@@ -857,42 +857,31 @@
       0%, 100% { opacity: 0.4; transform: translateX(0); }
       50% { opacity: 1; transform: translateX(4px); }
     }
-    /* 第四問のレイアウト */
+   /* 第四問のレイアウト（第二問と同じ白背景＋点線枠） */
     .q4-board {
       display: flex;
       flex-direction: column;
       gap: 22px;
       align-items: center;
-      margin: 10px 0 20px;
-    }
-    .q4-row {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      width: 100%;
-      max-width: 480px;
-    }
-    .q4-blocks-area {
-      width: 240px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 6px;
-      flex-shrink: 0;
+      margin: 10px auto 24px;
+      background: #ffffff;
+      padding: 28px 40px;
+      border-radius: 10px;
+      border: 1.5px dashed #999999;
+      width: fit-content;
+      max-width: 100%;
     }
     .q4-block {
-      width: 38px;
-      height: 38px;
-      border: 2px solid #0a1f18;
+      width: 42px;
+      height: 42px;
+      border: 2.5px solid #000000;
+      border-radius: 5px;
       box-sizing: border-box;
     }
-    .q4-gap {
-      width: 14px;
-    }
-    .q4-green { background: #009944; }
-    .q4-white { background: #ffffff; }
-    .q4-blue   { background: #0066cc; }
+    .q4-green  { background: #009944; }
+    .q4-blue   { background: #0055bb; }
     .q4-yellow { background: #ffd700; }
+    .q4-white  { background: #ffffff; }
     .q4-arrow {
       font-size: 1.6rem;
       font-weight: bold;
