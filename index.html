@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Klee+One:wght@400;600&family=Noto+Serif+JP:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- 物々しい・古文書風フォントの読み込み -->
+  <link href="https://fonts.googleapis.com/css2?family=Hina+Mincho&family=Shippori+Mincho+B1:wght@600;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-dark: #0a0b0e;
@@ -170,18 +172,19 @@
       margin-bottom: 28px;
     }
 
+    /* タイトルを重厚で威圧感のある極太明朝体に */
     .myth-title {
-      font-size: 1.6rem;
-      color: var(--gold-accent);
+      font-family: 'Shippori Mincho B1', serif;
+      font-weight: 800;
       letter-spacing: 0.18em;
-      margin-bottom: 6px;
+      text-shadow: 0 4px 16px rgba(212, 175, 55, 0.35);
     }
 
+    /* 本文を古文書・神話風の物々しいフォントに */
     .myth-body {
-      font-size: 1rem;
-      line-height: 2.1;
-      color: #c9d0e2;
-      text-align: justify;
+      font-family: 'Hina Mincho', 'Shippori Mincho B1', serif;
+      font-size: 1.12rem;
+      letter-spacing: 0.06em;
     }
 
     .myth-body p {
@@ -907,7 +910,7 @@
         <div class="myth-body">
           <p>かつて神は、果てなき混沌の深淵より「六つの面を持つ世界」を作り出した。</p>
           <p>月曜日から土曜日まで、神は日ごとに新たな一面を紡ぎ上げた。そして巡り来たる日曜日、満ち足りた静寂の中で深き休息を取ったという。</p>
-          <p>
+          <p style="text-indent: 0; padding-left: 1em;">
             月曜日は白の世界。<br>
             火曜日は赤の世界。<br>
             水曜日は青の世界。<br>
