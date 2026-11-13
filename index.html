@@ -1475,6 +1475,11 @@
       
       el.classList.add('active');
       document.getElementById('tab-' + tabId).classList.add('active');
+
+      if (id === 'cube') {
+        initCube3D();
+        setTimeout(resizeCubeRenderer, 50);
+      }
     }
 
     /* 第一問：送信ボタン（またはEnterキー）を押した時のみ判定 */
