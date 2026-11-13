@@ -1310,6 +1310,8 @@
               </div>
             </div>
           </div>
+        </div>
+       </div>
     </section>
 
     <!-- タブ3: 第一問 -->
@@ -1703,7 +1705,7 @@
       el.classList.add('active');
       document.getElementById('tab-' + tabId).classList.add('active');
 
-      if (id === 'cube') {
+      if (tabid === 'cube') {
         initCube3D();
         setTimeout(resizeCubeRenderer, 50);
       }
@@ -1985,6 +1987,7 @@
 
         /* 第二問での「青・青・青・青・赤」入力を有効化 */
         isPurpleSecretUnlocked = true;
+        saveProgress('diary5', true);
       } else {
         playErrorSound();
         msg.className = 'msg-box wrong';
