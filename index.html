@@ -1084,25 +1084,27 @@
       gap: 12px;
       align-items: center;
     }
+    /* 7列配置グリッド */
     .move-pad-grid {
       display: grid;
-      grid-template-columns: repeat(4, 62px);
-      grid-template-rows: repeat(4, 62px);
-      gap: 8px;
+      grid-template-columns: repeat(7, 48px);
+      grid-auto-rows: 48px;
+      gap: 6px;
     }
     .move-btn {
-      width: 62px;
-      height: 62px;
-      font-size: 1.35rem;
+      width: 48px;
+      height: 48px;
+      font-size: 1.05rem;
       font-weight: bold;
       font-family: sans-serif;
       background: #f8fafc;
       color: #0f172a;
       border: 2px solid #cbd5e1;
-      border-radius: 8px;
+      border-radius: 7px;
       cursor: pointer;
       transition: transform 0.08s, background 0.15s;
-      box-shadow: 0 3px 0 #94a3b8;
+      box-shadow: 0 2px 0 #94a3b8;
+      padding: 0;
     }
     .move-btn:hover {
       background: #fef08a;
@@ -1110,7 +1112,15 @@
     }
     .move-btn:active {
       transform: translateY(2px);
-      box-shadow: 0 1px 0 #94a3b8;
+      box-shadow: 0 0 0 #94a3b8;
+    }
+    .move-btn.slice-btn {
+      background: #e0f2fe;
+      border-color: #7dd3fc;
+    }
+    .move-btn.rot-btn {
+      background: #f3e8ff;
+      border-color: #d8b4fe;
     }
     .move-spacer {
       visibility: hidden;
@@ -1633,24 +1643,70 @@
           <!-- 右側：4x4回転記号ボタン配置 -->
           <div class="cube-right-col">
             <div class="move-pad-grid">
+              <!-- 1行目: [空][空] B B' B2 [空][空] -->
+              <div class="move-spacer"></div>
               <div class="move-spacer"></div>
               <button class="move-btn" onclick="enqueueMoves('B')">B</button>
               <button class="move-btn" onclick="enqueueMoves('B\'')">B'</button>
+              <button class="move-btn" onclick="enqueueMoves('B2')">B2</button>
+              <div class="move-spacer"></div>
               <div class="move-spacer"></div>
 
+              <!-- 2行目: [空] L U U' U2 R [空] -->
+              <div class="move-spacer"></div>
               <button class="move-btn" onclick="enqueueMoves('L')">L</button>
               <button class="move-btn" onclick="enqueueMoves('U')">U</button>
               <button class="move-btn" onclick="enqueueMoves('U\'')">U'</button>
+              <button class="move-btn" onclick="enqueueMoves('U2')">U2</button>
               <button class="move-btn" onclick="enqueueMoves('R')">R</button>
+              <div class="move-spacer"></div>
 
+              <!-- 3行目: [空] L' F F' F2 R' [空] -->
+              <div class="move-spacer"></div>
               <button class="move-btn" onclick="enqueueMoves('L\'')">L'</button>
               <button class="move-btn" onclick="enqueueMoves('F')">F</button>
               <button class="move-btn" onclick="enqueueMoves('F\'')">F'</button>
+              <button class="move-btn" onclick="enqueueMoves('F2')">F2</button>
               <button class="move-btn" onclick="enqueueMoves('R\'')">R'</button>
-
               <div class="move-spacer"></div>
+
+              <!-- 4行目: [空] L2 D D' D2 R2 [空] -->
+              <div class="move-spacer"></div>
+              <button class="move-btn" onclick="enqueueMoves('L2')">L2</button>
               <button class="move-btn" onclick="enqueueMoves('D')">D</button>
               <button class="move-btn" onclick="enqueueMoves('D\'')">D'</button>
+              <button class="move-btn" onclick="enqueueMoves('D2')">D2</button>
+              <button class="move-btn" onclick="enqueueMoves('R2')">R2</button>
+              <div class="move-spacer"></div>
+
+              <!-- 隙間行 -->
+              <div style="grid-column: 1 / -1; height: 6px;"></div>
+
+              <!-- 5行目: M M' M2 S S' E E' -->
+              <button class="move-btn slice-btn" onclick="enqueueMoves('M')">M</button>
+              <button class="move-btn slice-btn" onclick="enqueueMoves('M\'')">M'</button>
+              <button class="move-btn slice-btn" onclick="enqueueMoves('M2')">M2</button>
+              <button class="move-btn slice-btn" onclick="enqueueMoves('S')">S</button>
+              <button class="move-btn slice-btn" onclick="enqueueMoves('S\'')">S'</button>
+              <button class="move-btn slice-btn" onclick="enqueueMoves('E')">E</button>
+              <button class="move-btn slice-btn" onclick="enqueueMoves('E\'')">E'</button>
+
+              <!-- 6行目: [空] x x' y y' z z' -->
+              <div class="move-spacer"></div>
+              <button class="move-btn rot-btn" onclick="enqueueMoves('x')">x</button>
+              <button class="move-btn rot-btn" onclick="enqueueMoves('x\'')">x'</button>
+              <button class="move-btn rot-btn" onclick="enqueueMoves('y')">y</button>
+              <button class="move-btn rot-btn" onclick="enqueueMoves('y\'')">y'</button>
+              <button class="move-btn rot-btn" onclick="enqueueMoves('z')">z</button>
+              <button class="move-btn rot-btn" onclick="enqueueMoves('z\'')">z'</button>
+
+              <!-- 7行目: [空] x2 [空] y2 [空] z2 [空] -->
+              <div class="move-spacer"></div>
+              <button class="move-btn rot-btn" onclick="enqueueMoves('x2')">x2</button>
+              <div class="move-spacer"></div>
+              <button class="move-btn rot-btn" onclick="enqueueMoves('y2')">y2</button>
+              <div class="move-spacer"></div>
+              <button class="move-btn rot-btn" onclick="enqueueMoves('z2')">z2</button>
               <div class="move-spacer"></div>
             </div>
           </div>
@@ -2143,20 +2199,17 @@
       }
     }
 
-    /* 回転記号の解析（"R U R' F2" などを1手ずつの配列へ分解） */
+    /* 回転記号の解析（R, R', R2, M, S, E, x, y, z 対応） */
     function parseMoveString(str) {
-      const tokens = str.toUpperCase().replace(/’/g, "'").match(/[RLUDFB][2']?/g);
+      const normalized = str.replace(/’/g, "'");
+      const tokens = normalized.match(/([RLUDFBMSE][2']?|[xyz][2']?)/gi);
       if (!tokens) return [];
-      const expanded = [];
-      tokens.forEach(tok => {
-        if (tok.endsWith('2')) {
-          const base = tok[0];
-          expanded.push(base, base);
-        } else {
-          expanded.push(tok);
-        }
+      return tokens.map(tok => {
+        const head = tok[0];
+        const rest = tok.slice(1);
+        const fixedHead = /[xyz]/i.test(head) ? head.toLowerCase() : head.toUpperCase();
+        return fixedHead + rest;
       });
-      return expanded;
     }
 
     /* ボタンや貼り付けからの回転キュー追加 */
@@ -2172,39 +2225,53 @@
         display.scrollTop = display.scrollHeight;
       }
 
-      moves.forEach(m => moveQueue.push({ move: m, speed: options.speed || 130, silent: !!options.silent }));
+      moves.forEach(m => {
+        const baseSpeed = options.speed || 130;
+        const speed = m.includes('2') ? Math.round(baseSpeed * 1.45) : baseSpeed;
+        moveQueue.push({ move: m, speed, silent: !!options.silent });
+      });
       processMoveQueue();
-    }
-
-    function processMoveQueue() {
-      if (isAnimatingMove || moveQueue.length === 0) return;
-      const next = moveQueue.shift();
-      performSingleAnimatedMove(next.move, next.speed, next.silent);
     }
 
     function performSingleAnimatedMove(move, durationMs, silent) {
       isAnimatingMove = true;
       if (!silent) playTone(520, 'sine', 0.04);
 
-      // 計測モード：スクランブル完了後、最初の1手でタイマースタート
       if (cubeMode === 'timer' && !isScrambling && timerState === 'ready') {
         startSolveTimer();
       }
 
       const face = move[0];
       const prime = move.includes("'");
-      let axis = 'y', layer = 1, angle = -Math.PI / 2;
+      const isDouble = move.includes('2');
+      const mult = isDouble ? 2 : (prime ? -1 : 1);
+
+      let axis = 'y';
+      let layerFilter = () => false;
+      let baseAngle = -Math.PI / 2;
 
       switch (face) {
-        case 'U': axis = 'y'; layer = 1;  angle = prime ? Math.PI / 2 : -Math.PI / 2; break;
-        case 'D': axis = 'y'; layer = -1; angle = prime ? -Math.PI / 2 : Math.PI / 2; break;
-        case 'R': axis = 'x'; layer = 1;  angle = prime ? Math.PI / 2 : -Math.PI / 2; break;
-        case 'L': axis = 'x'; layer = -1; angle = prime ? -Math.PI / 2 : Math.PI / 2; break;
-        case 'F': axis = 'z'; layer = 1;  angle = prime ? Math.PI / 2 : -Math.PI / 2; break;
-        case 'B': axis = 'z'; layer = -1; angle = prime ? -Math.PI / 2 : Math.PI / 2; break;
+        // 外層（基本6面）
+        case 'U': axis = 'y'; layerFilter = c => Math.round(c.position.y) === 1;  baseAngle = -Math.PI / 2; break;
+        case 'D': axis = 'y'; layerFilter = c => Math.round(c.position.y) === -1; baseAngle = Math.PI / 2;  break;
+        case 'R': axis = 'x'; layerFilter = c => Math.round(c.position.x) === 1;  baseAngle = -Math.PI / 2; break;
+        case 'L': axis = 'x'; layerFilter = c => Math.round(c.position.x) === -1; baseAngle = Math.PI / 2;  break;
+        case 'F': axis = 'z'; layerFilter = c => Math.round(c.position.z) === 1;  baseAngle = -Math.PI / 2; break;
+        case 'B': axis = 'z'; layerFilter = c => Math.round(c.position.z) === -1; baseAngle = Math.PI / 2;  break;
+
+        // 中列（M: Lと同じ向き / S: Fと同じ向き / E: Dと同じ向き）
+        case 'M': axis = 'x'; layerFilter = c => Math.round(c.position.x) === 0;  baseAngle = Math.PI / 2;  break;
+        case 'S': axis = 'z'; layerFilter = c => Math.round(c.position.z) === 0;  baseAngle = -Math.PI / 2; break;
+        case 'E': axis = 'y'; layerFilter = c => Math.round(c.position.y) === 0;  baseAngle = Math.PI / 2;  break;
+
+        // 持ち替え記号（x: Rと同じ / y: Uと同じ / z: Fと同じ向きに全層回転）
+        case 'x': axis = 'x'; layerFilter = () => true; baseAngle = -Math.PI / 2; break;
+        case 'y': axis = 'y'; layerFilter = () => true; baseAngle = -Math.PI / 2; break;
+        case 'z': axis = 'z'; layerFilter = () => true; baseAngle = -Math.PI / 2; break;
       }
 
-      const targetCubies = cubies.filter(c => Math.round(c.position[axis]) === layer);
+      const angle = baseAngle * mult;
+      const targetCubies = cubies.filter(layerFilter);
       pivotGroup.rotation.copy(cubeGroup.rotation);
       pivotGroup.updateMatrixWorld();
 
@@ -2241,7 +2308,6 @@
           });
           isAnimatingMove = false;
 
-          // タイマー計測中なら揃ったか判定
           if (cubeMode === 'timer' && !isScrambling && timerState === 'running') {
             if (checkIsCubeSolved()) {
               stopSolveTimer();
