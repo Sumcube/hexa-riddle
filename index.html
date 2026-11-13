@@ -2232,7 +2232,11 @@
       });
       processMoveQueue();
     }
-
+    function processMoveQueue() {
+      if (isAnimatingMove || moveQueue.length === 0) return;
+      const next = moveQueue.shift();
+      performSingleAnimatedMove(next.move, next.speed, next.silent);
+    }
     function performSingleAnimatedMove(move, durationMs, silent) {
       isAnimatingMove = true;
       if (!silent) playTone(520, 'sine', 0.04);
