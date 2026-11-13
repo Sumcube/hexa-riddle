@@ -1004,6 +1004,8 @@
     <button id="q3-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q3', this)">第三問</button>
     <button id="q4-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q4', this)">第四問</button>
     <button id="q5-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q5', this)">第五問</button>
+ <!-- 進行状況リセットボタン -->
+    <button class="tab-btn" style="margin-left: auto; color: #ff6b6b; border-color: rgba(255, 107, 107, 0.4); font-size: 0.8rem;" onclick="resetProgress()">リセット</button>
   </nav>
 
   <main>
@@ -1666,6 +1668,7 @@
     let introStep = 0;
 
     function finishIntro() {
+      saveProgress('introSeen', true);
       const overlay = document.getElementById('intro-overlay');
       if (!overlay) return;
       overlay.style.opacity = '0';
@@ -1757,6 +1760,73 @@
         if (e.key === 'Enter') { e.preventDefault(); checkQ5(); }
       });
     }
+    /* ==========================================
+       進行状況の保存・復元・リセット（localStorage）
+    ========================================== */
+    const STORAGE_KEY = 'cube_mystery_progress_v1';
+
+    function getProgress() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveProgress(key, value = true) {
+      const data = getProgress();
+      data[key] = value;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function restoreProgress() {
+      const data = getProgress();
+
+      // オープニング視聴済みなら最初から消す
+      if (data.introSeen) {
+        const overlay = document.getElementById('intro-overlay');
+        if (overlay) overlay.remove();
+      }
+
+      // 解放済みタブの表示復元
+      if (data.q2) {
+        const q2 = document.getElementById('q2-tab-btn');
+        if (q2) q2.style.setProperty('display', 'flex', 'important');
+        saveProgress('q2', true);
+      }
+      if (data.q3) {
+        const q3 = document.getElementById('q3-tab-btn');
+        if (q3) q3.style.setProperty('display', 'flex', 'important');
+        saveProgress('q3', true);
+      }
+      if (data.q4) {
+        const q4 = document.getElementById('q4-tab-btn');
+        if (q4) q4.style.setProperty('display', 'flex', 'important');
+        saveProgress('q4', true);
+      }
+      if (data.q5) {
+        const q5 = document.getElementById('q5-tab-btn');
+        if (q5) q5.style.setProperty('display', 'flex', 'important');
+        saveProgress('q5', true);
+      }
+
+      // 第五問クリア済み（日記5ページ目＆第二問裏コマンド解放）の復元
+      if (data.diary5) {
+        const warn1 = document.getElementById('diary-warning-1');
+        if (warn1) warn1.style.display = 'none';
+        const nextBtn = document.getElementById('diary-next-spread3');
+        if (nextBtn) nextBtn.style.display = 'flex';
+        isPurpleSecretUnlocked = true;
+      }
+    }
+
+    function resetProgress() {
+      if (!confirm('これまでの進行状況をすべてリセットして最初からやり直しますか？')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+    /* ページ読み込み時に保存された進行状況を復元 */
+  restoreProgress();
   </script>
 </body>
 </html>
