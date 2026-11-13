@@ -1594,11 +1594,10 @@
         <div class="cube-app-header">
           <div>
             <h2 class="puzzle-title" style="margin: 0; font-size: 1.5rem;">3D Cube Simulator</h2>
-            <p style="margin: 2px 0 0; font-size: 0.82rem; color: #aaa;">ドラッグで視点回転 / ボタン・貼り付け操作対応</p>
           </div>
           <div class="mode-switch">
             <button id="mode-free-btn" class="mode-btn active" onclick="setCubeMode('free')">フリー操作モード</button>
-            <button id="mode-timer-btn" class="mode-btn" onclick="setCubeMode('timer')">タイム計測モード (csTimer風)</button>
+            <button id="mode-timer-btn" class="mode-btn" onclick="setCubeMode('timer')">タイム計測モード</button>
           </div>
         </div>
 
@@ -1622,10 +1621,10 @@
             <div id="cube-canvas-wrap"></div>
             <div class="cube-display-box">
               <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #ccc;">
-                <span>回転履歴 / 手順入力（例: R U R' を貼り付けで連続回転）</span>
+                <span>回転履歴 / 手順入力</span>
                 <button onclick="resetCubeState()" style="background: none; border: 1px solid #666; color: #ccc; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.75rem;">キューブ初期化</button>
               </div>
-              <textarea id="cube-move-display" placeholder="ボタンを押すか、ここに「R U R'」などを貼り付け・入力"></textarea>
+              <textarea id="cube-move-display" placeholder="ボタンで入力"></textarea>
             </div>
           </div>
 
