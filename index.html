@@ -1493,6 +1493,7 @@
         /* 第二問タブを表示（※自動遷移はせず、ボタンのみ出現） */
         const q2Btn = document.getElementById('q2-tab-btn');
         q2Btn.style.setProperty('display', 'flex', 'important');
+        saveProgress('q2', true);
       } else {
         playErrorSound();
         msg.className = 'msg-box wrong';
@@ -1571,6 +1572,7 @@
         msg.textContent = '正解！ 第三問が出現しました。';
         const q3Btn = document.getElementById('q3-tab-btn');
         if (q3Btn) q3Btn.style.setProperty('display', 'flex', 'important');
+        saveProgress('q3', true);
       } else {
         playErrorSound();
         msg.className = 'msg-box wrong';
@@ -1599,6 +1601,7 @@
         msg.textContent = '正解！ 「第四問」が出現しました。';
         const q4 = document.getElementById('q4-tab-btn');
         if (q4) q4.style.setProperty('display', 'flex', 'important');
+        saveProgress('q4', true);
       } else {
         playErrorSound();
         msg.className = 'msg-box wrong';
@@ -1642,6 +1645,7 @@
         msg.textContent = '正解！ 「第五問」が出現しました。';
         const q5 = document.getElementById('q5-tab-btn');
         if (q5) q5.style.setProperty('display', 'flex', 'important');
+       saveProgress('q5', true);
       } else {
         playErrorSound();
         msg.className = 'msg-box wrong';
@@ -1792,22 +1796,18 @@
       if (data.q2) {
         const q2 = document.getElementById('q2-tab-btn');
         if (q2) q2.style.setProperty('display', 'flex', 'important');
-        saveProgress('q2', true);
       }
       if (data.q3) {
         const q3 = document.getElementById('q3-tab-btn');
         if (q3) q3.style.setProperty('display', 'flex', 'important');
-        saveProgress('q3', true);
       }
       if (data.q4) {
         const q4 = document.getElementById('q4-tab-btn');
         if (q4) q4.style.setProperty('display', 'flex', 'important');
-        saveProgress('q4', true);
       }
       if (data.q5) {
         const q5 = document.getElementById('q5-tab-btn');
         if (q5) q5.style.setProperty('display', 'flex', 'important');
-        saveProgress('q5', true);
       }
 
       // 第五問クリア済み（日記5ページ目＆第二問裏コマンド解放）の復元
