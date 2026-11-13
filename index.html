@@ -1561,7 +1561,11 @@
         playSuccessSound();
         msg.className = 'msg-box correct';
         msg.style.display = 'block';
-        msg.textContent = 'おめでとう。紫の世界が解放されました。';
+        msg.innerHTML = '紫の世界が解放されました！<br>佐村健人の日記の閲覧権限が追加されました。';
+
+        const page6 = document.getElementById('diary-page6-entry');
+        if (page6) page6.style.display = 'block';
+        saveProgress('diary6', true);
         return;
       }
 
@@ -1765,6 +1769,428 @@
       });
     }
     /* ==========================================
+       キューブアプリ解放＆3Dシミュレーター実装
+    ========================================== */
+    function unlockCubeApp() {
+      playSuccessSound();
+      const cubeBtn = document.getElementById('cube-tab-btn');
+      if (cubeBtn) {
+        cubeBtn.style.setProperty('display', 'flex', 'important');
+        saveProgress('cubeApp', true);
+        switchTab('cube', cubeBtn);
+      }
+    }
+
+    let cubeScene, cubeCamera, cubeRenderer, cubeGroup, pivotGroup;
+    let cubies = [];
+    let isCubeInitialized = false;
+    let moveQueue = [];
+    let isAnimatingMove = false;
+    let cubeMode = 'free'; // 'free' | 'timer'
+    let timerState = 'idle'; // 'idle' | 'ready' | 'running' | 'solved'
+    let timerStartTime = 0;
+    let timerInterval = null;
+    let solveTimes = [];
+    let isScrambling = false;
+
+    // 配色: 上(白), 下(黄), 前(緑), 後(青), 右(赤), 左(橙)
+    const FACE_COLORS = {
+      U: 0xffffff,
+      D: 0xffd500,
+      F: 0x009b48,
+      B: 0x0045ad,
+      R: 0xb90000,
+      L: 0xff5900,
+      INNER: 0x18181b
+    };
+
+    function initCube3D() {
+      if (isCubeInitialized) return;
+      const wrap = document.getElementById('cube-canvas-wrap');
+      if (!wrap || typeof THREE === 'undefined') return;
+
+      isCubeInitialized = true;
+      cubeScene = new THREE.Scene();
+
+      const w = wrap.clientWidth || 340;
+      const h = wrap.clientHeight || 290;
+      cubeCamera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
+      cubeCamera.position.set(4.6, 3.8, 5.2);
+      cubeCamera.lookAt(0, 0, 0);
+
+      cubeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      cubeRenderer.setSize(w, h);
+      cubeRenderer.setPixelRatio(window.devicePixelRatio);
+      wrap.appendChild(cubeRenderer.domElement);
+
+      const ambient = new THREE.AmbientLight(0xffffff, 0.95);
+      cubeScene.add(ambient);
+
+      cubeGroup = new THREE.Group();
+      pivotGroup = new THREE.Group();
+      cubeScene.add(cubeGroup);
+      cubeScene.add(pivotGroup);
+
+      buildCubies();
+      setupCameraDrag(wrap);
+      animateCubeLoop();
+    }
+
+    function resizeCubeRenderer() {
+      const wrap = document.getElementById('cube-canvas-wrap');
+      if (!wrap || !cubeRenderer || !cubeCamera) return;
+      const w = wrap.clientWidth;
+      const h = wrap.clientHeight;
+      if (w > 0 && h > 0) {
+        cubeCamera.aspect = w / h;
+        cubeCamera.updateProjectionMatrix();
+        cubeRenderer.setSize(w, h);
+      }
+    }
+    window.addEventListener('resize', resizeCubeRenderer);
+
+    function buildCubies() {
+      cubies.forEach(c => cubeGroup.remove(c));
+      cubies = [];
+      const geom = new THREE.BoxGeometry(0.94, 0.94, 0.94);
+
+      for (let x = -1; x <= 1; x++) {
+        for (let y = -1; y <= 1; y++) {
+          for (let z = -1; z <= 1; z++) {
+            const mats = [
+              new THREE.MeshBasicMaterial({ color: x === 1 ? FACE_COLORS.R : FACE_COLORS.INNER }),
+              new THREE.MeshBasicMaterial({ color: x === -1 ? FACE_COLORS.L : FACE_COLORS.INNER }),
+              new THREE.MeshBasicMaterial({ color: y === 1 ? FACE_COLORS.U : FACE_COLORS.INNER }),
+              new THREE.MeshBasicMaterial({ color: y === -1 ? FACE_COLORS.D : FACE_COLORS.INNER }),
+              new THREE.MeshBasicMaterial({ color: z === 1 ? FACE_COLORS.F : FACE_COLORS.INNER }),
+              new THREE.MeshBasicMaterial({ color: z === -1 ? FACE_COLORS.B : FACE_COLORS.INNER })
+            ];
+            const mesh = new THREE.Mesh(geom, mats);
+            mesh.position.set(x, y, z);
+
+            // 黒いエッジ枠線
+            const edges = new THREE.EdgesGeometry(geom);
+            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 }));
+            mesh.add(line);
+
+            cubeGroup.add(mesh);
+            cubies.push(mesh);
+          }
+        }
+      }
+    }
+
+    function setupCameraDrag(el) {
+      let isDragging = false;
+      let prevX = 0, prevY = 0;
+      el.addEventListener('pointerdown', e => {
+        isDragging = true;
+        prevX = e.clientX;
+        prevY = e.clientY;
+      });
+      window.addEventListener('pointermove', e => {
+        if (!isDragging || !cubeGroup) return;
+        const dx = e.clientX - prevX;
+        const dy = e.clientY - prevY;
+        prevX = e.clientX;
+        prevY = e.clientY;
+        cubeGroup.rotation.y += dx * 0.012;
+        cubeGroup.rotation.x += dy * 0.012;
+        pivotGroup.rotation.copy(cubeGroup.rotation);
+      });
+      window.addEventListener('pointerup', () => { isDragging = false; });
+    }
+
+    function animateCubeLoop() {
+      requestAnimationFrame(animateCubeLoop);
+      if (cubeRenderer && cubeScene && cubeCamera) {
+        cubeRenderer.render(cubeScene, cubeCamera);
+      }
+    }
+
+    /* 回転記号の解析（"R U R' F2" などを1手ずつの配列へ分解） */
+    function parseMoveString(str) {
+      const tokens = str.toUpperCase().replace(/’/g, "'").match(/[RLUDFB][2']?/g);
+      if (!tokens) return [];
+      const expanded = [];
+      tokens.forEach(tok => {
+        if (tok.endsWith('2')) {
+          const base = tok[0];
+          expanded.push(base, base);
+        } else {
+          expanded.push(tok);
+        }
+      });
+      return expanded;
+    }
+
+    /* ボタンや貼り付けからの回転キュー追加 */
+    function enqueueMoves(moveStr, options = {}) {
+      if (!isCubeInitialized) initCube3D();
+      const moves = parseMoveString(moveStr);
+      if (moves.length === 0) return;
+
+      const display = document.getElementById('cube-move-display');
+      if (display && !options.skipDisplay) {
+        const current = display.value.trim();
+        display.value = current ? `${current} ${moves.join(' ')}` : moves.join(' ');
+        display.scrollTop = display.scrollHeight;
+      }
+
+      moves.forEach(m => moveQueue.push({ move: m, speed: options.speed || 130, silent: !!options.silent }));
+      processMoveQueue();
+    }
+
+    function processMoveQueue() {
+      if (isAnimatingMove || moveQueue.length === 0) return;
+      const next = moveQueue.shift();
+      performSingleAnimatedMove(next.move, next.speed, next.silent);
+    }
+
+    function performSingleAnimatedMove(move, durationMs, silent) {
+      isAnimatingMove = true;
+      if (!silent) playTone(520, 'sine', 0.04);
+
+      // 計測モード：スクランブル完了後、最初の1手でタイマースタート
+      if (cubeMode === 'timer' && !isScrambling && timerState === 'ready') {
+        startSolveTimer();
+      }
+
+      const face = move[0];
+      const prime = move.includes("'");
+      let axis = 'y', layer = 1, angle = -Math.PI / 2;
+
+      switch (face) {
+        case 'U': axis = 'y'; layer = 1;  angle = prime ? Math.PI / 2 : -Math.PI / 2; break;
+        case 'D': axis = 'y'; layer = -1; angle = prime ? -Math.PI / 2 : Math.PI / 2; break;
+        case 'R': axis = 'x'; layer = 1;  angle = prime ? Math.PI / 2 : -Math.PI / 2; break;
+        case 'L': axis = 'x'; layer = -1; angle = prime ? -Math.PI / 2 : Math.PI / 2; break;
+        case 'F': axis = 'z'; layer = 1;  angle = prime ? Math.PI / 2 : -Math.PI / 2; break;
+        case 'B': axis = 'z'; layer = -1; angle = prime ? -Math.PI / 2 : Math.PI / 2; break;
+      }
+
+      const targetCubies = cubies.filter(c => Math.round(c.position[axis]) === layer);
+      pivotGroup.rotation.copy(cubeGroup.rotation);
+      pivotGroup.updateMatrixWorld();
+
+      targetCubies.forEach(c => {
+        cubeGroup.remove(c);
+        pivotGroup.add(c);
+      });
+
+      const startTime = performance.now();
+      const baseRot = { x: pivotGroup.rotation.x, y: pivotGroup.rotation.y, z: pivotGroup.rotation.z };
+
+      function step(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / durationMs, 1);
+        const ease = 1 - Math.pow(1 - t, 2);
+
+        pivotGroup.rotation.set(baseRot.x, baseRot.y, baseRot.z);
+        pivotGroup.rotateOnAxis(
+          new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0),
+          angle * ease
+        );
+
+        if (t < 1) {
+          requestAnimationFrame(step);
+        } else {
+          pivotGroup.updateMatrixWorld();
+          targetCubies.forEach(c => {
+            c.applyMatrix4(pivotGroup.matrixWorld);
+            const inv = new THREE.Matrix4().copy(cubeGroup.matrixWorld).invert();
+            c.applyMatrix4(inv);
+            c.position.set(Math.round(c.position.x), Math.round(c.position.y), Math.round(c.position.z));
+            pivotGroup.remove(c);
+            cubeGroup.add(c);
+          });
+          isAnimatingMove = false;
+
+          // タイマー計測中なら揃ったか判定
+          if (cubeMode === 'timer' && !isScrambling && timerState === 'running') {
+            if (checkIsCubeSolved()) {
+              stopSolveTimer();
+            }
+          }
+          processMoveQueue();
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    /* 揃ったかどうかの判定（各面9枚の法線方向の色が一致しているか） */
+    function checkIsCubeSolved() {
+      const normals = [
+        new THREE.Vector3(1, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        new THREE.Vector3(0, 1, 0),
+        new THREE.Vector3(0, -1, 0),
+        new THREE.Vector3(0, 0, 1),
+        new THREE.Vector3(0, 0, -1)
+      ];
+      const localDirs = [
+        new THREE.Vector3(1, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        new THREE.Vector3(0, 1, 0),
+        new THREE.Vector3(0, -1, 0),
+        new THREE.Vector3(0, 0, 1),
+        new THREE.Vector3(0, 0, -1)
+      ];
+
+      for (let f = 0; f < 6; f++) {
+        const worldNormal = normals[f];
+        let faceColor = null;
+
+        for (const c of cubies) {
+          const coord = Math.round(c.position.dot(worldNormal));
+          if (coord !== 1) continue;
+
+          for (let i = 0; i < 6; i++) {
+            const dir = localDirs[i].clone().applyQuaternion(c.quaternion);
+            if (dir.dot(worldNormal) > 0.9) {
+              const hex = c.material[i].color.getHex();
+              if (faceColor === null) faceColor = hex;
+              else if (faceColor !== hex) return false;
+            }
+          }
+        }
+      }
+      return true;
+    }
+
+    /* ディスプレイへの貼り付け・入力検知（一気にコピペされたら1手ずつ素早く回す） */
+    const moveDisplayEl = document.getElementById('cube-move-display');
+    if (moveDisplayEl) {
+      moveDisplayEl.addEventListener('paste', e => {
+        e.preventDefault();
+        const pasted = (e.clipboardData || window.clipboardData).getData('text');
+        const moves = parseMoveString(pasted);
+        if (moves.length > 0) {
+          // 1手ずつ連続アニメーション（65ms/手）で素早く実行
+          enqueueMoves(moves.join(' '), { speed: 65 });
+        }
+      });
+
+      moveDisplayEl.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const lines = moveDisplayEl.value.trim().split('\n');
+          const lastLine = lines[lines.length - 1];
+          const moves = parseMoveString(lastLine);
+          if (moves.length > 0) {
+            moveDisplayEl.value = lines.slice(0, -1).join('\n');
+            enqueueMoves(moves.join(' '), { speed: 75 });
+          }
+        }
+      });
+    }
+
+    function resetCubeState() {
+      moveQueue = [];
+      isAnimatingMove = false;
+      buildCubies();
+      const display = document.getElementById('cube-move-display');
+      if (display) display.value = '';
+      if (cubeMode === 'timer') {
+        clearInterval(timerInterval);
+        timerState = 'idle';
+        document.getElementById('cube-timer-val').textContent = '0.00';
+      }
+    }
+
+    /* モード切替（フリー操作 / csTimer風タイム計測） */
+    function setCubeMode(mode) {
+      cubeMode = mode;
+      document.getElementById('mode-free-btn').classList.toggle('active', mode === 'free');
+      document.getElementById('mode-timer-btn').classList.toggle('active', mode === 'timer');
+      const bar = document.getElementById('cube-timer-bar');
+      bar.style.display = (mode === 'timer') ? 'flex' : 'none';
+
+      resetCubeState();
+      if (mode === 'timer') {
+        startNewScramble();
+      }
+    }
+
+    function startNewScramble() {
+      clearInterval(timerInterval);
+      moveQueue = [];
+      isAnimatingMove = false;
+      buildCubies();
+      const display = document.getElementById('cube-move-display');
+      if (display) display.value = '';
+
+      const faces = ['R', 'L', 'U', 'D', 'F', 'B'];
+      const mods = ['', "'"];
+      const scramble = [];
+      let prevFace = '';
+
+      for (let i = 0; i < 18; i++) {
+        let f;
+        do { f = faces[Math.floor(Math.random() * faces.length)]; } while (f === prevFace);
+        prevFace = f;
+        scramble.push(f + mods[Math.floor(Math.random() * mods.length)]);
+      }
+
+      document.getElementById('cube-scramble-text').textContent = 'スクランブル: ' + scramble.join(' ');
+      document.getElementById('cube-timer-val').textContent = '0.00';
+
+      isScrambling = true;
+      timerState = 'scrambling';
+      scramble.forEach((m, idx) => {
+        moveQueue.push({
+          move: m,
+          speed: 35,
+          silent: true
+        });
+      });
+
+      // スクランブル終了検知用インターバル
+      const waitScramble = setInterval(() => {
+        if (!isAnimatingMove && moveQueue.length === 0) {
+          clearInterval(waitScramble);
+          isScrambling = false;
+          timerState = 'ready';
+        }
+      }, 40);
+      processMoveQueue();
+    }
+
+    function startSolveTimer() {
+      timerState = 'running';
+      timerStartTime = performance.now();
+      timerInterval = setInterval(() => {
+        const sec = (performance.now() - timerStartTime) / 1000;
+        document.getElementById('cube-timer-val').textContent = sec.toFixed(2);
+      }, 20);
+    }
+
+    function stopSolveTimer() {
+      clearInterval(timerInterval);
+      timerState = 'solved';
+      const finalSec = (performance.now() - timerStartTime) / 1000;
+      document.getElementById('cube-timer-val').textContent = finalSec.toFixed(2);
+      playSuccessSound();
+
+      solveTimes.push(finalSec);
+      updateTimerStats();
+    }
+
+    function updateTimerStats() {
+      const count = solveTimes.length;
+      document.getElementById('stat-count').textContent = count;
+      document.getElementById('stat-single').textContent = solveTimes[count - 1].toFixed(2) + 's';
+
+      if (count >= 5) {
+        const last5 = solveTimes.slice(-5).sort((a, b) => a - b);
+        const middle3 = last5.slice(1, 4);
+        const ao5 = middle3.reduce((sum, v) => sum + v, 0) / 3;
+        document.getElementById('stat-ao5').textContent = ao5.toFixed(2) + 's';
+      } else {
+        document.getElementById('stat-ao5').textContent = '-';
+      }
+    }
+    /* ==========================================
        進行状況の保存・復元・リセット（localStorage）
     ========================================== */
     const STORAGE_KEY = 'cube_mystery_progress_v1';
@@ -1817,6 +2243,14 @@
         const nextBtn = document.getElementById('diary-next-spread3');
         if (nextBtn) nextBtn.style.display = 'flex';
         isPurpleSecretUnlocked = true;
+      }
+      if (data.diary6) {
+        const page6 = document.getElementById('diary-page6-entry');
+        if (page6) page6.style.display = 'block';
+      }
+      if (data.cubeApp) {
+        const cubeBtn = document.getElementById('cube-tab-btn');
+        if (cubeBtn) cubeBtn.style.setProperty('display', 'flex', 'important');
       }
     }
 
