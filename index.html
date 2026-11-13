@@ -999,8 +999,8 @@
     <button class="tab-btn active" onclick="switchTab('myth', this)">六面世界の創世記</button>
     <button class="tab-btn" onclick="switchTab('diary', this)">佐村健人の日記</button>
     <button class="tab-btn" onclick="switchTab('q1', this)">第一問</button>
-     <!-- 初期状態：非表示 -->
     <button id="cube-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('cube', this)">キューブアプリ</button>
+     <!-- 初期状態：非表示 -->
     <button id="q2-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q2', this)">第二問</button>
     <button id="q3-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q3', this)">第三問</button>
     <button id="q4-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q4', this)">第四問</button>
@@ -1433,6 +1433,74 @@
         </div>
 
         <div id="q5-msg" class="msg-box"></div>
+      </div>
+    </section>
+          <!-- キューブアプリタブ -->
+    <section id="tab-cube" class="tab-content">
+      <div class="puzzle-panel">
+        <div class="cube-app-header">
+          <div>
+            <h2 class="puzzle-title" style="margin: 0; font-size: 1.5rem;">3D Cube Simulator</h2>
+            <p style="margin: 2px 0 0; font-size: 0.82rem; color: #aaa;">ドラッグで視点回転 / ボタン・貼り付け操作対応</p>
+          </div>
+          <div class="mode-switch">
+            <button id="mode-free-btn" class="mode-btn active" onclick="setCubeMode('free')">フリー操作モード</button>
+            <button id="mode-timer-btn" class="mode-btn" onclick="setCubeMode('timer')">タイム計測モード (csTimer風)</button>
+          </div>
+        </div>
+
+        <!-- タイム計測モード用バー -->
+        <div id="cube-timer-bar" class="timer-bar">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div id="cube-timer-val" class="timer-display">0.00</div>
+            <button class="submit-btn" style="padding: 8px 14px; font-size: 0.9rem;" onclick="startNewScramble()">次のスクランブル</button>
+          </div>
+          <div class="timer-stats">
+            <span>Single: <strong id="stat-single">-</strong></span>
+            <span>Ao5: <strong id="stat-ao5">-</strong></span>
+            <span>回数: <strong id="stat-count">0</strong></span>
+          </div>
+          <div id="cube-scramble-text" class="scramble-text">スクランブル: -</div>
+        </div>
+
+        <div class="cube-workspace">
+          <!-- 左側：3Dキューブ + 下部ディスプレイ -->
+          <div class="cube-left-col">
+            <div id="cube-canvas-wrap"></div>
+            <div class="cube-display-box">
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #ccc;">
+                <span>回転履歴 / 手順入力（例: R U R' を貼り付けで連続回転）</span>
+                <button onclick="resetCubeState()" style="background: none; border: 1px solid #666; color: #ccc; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.75rem;">キューブ初期化</button>
+              </div>
+              <textarea id="cube-move-display" placeholder="ボタンを押すか、ここに「R U R'」などを貼り付け・入力"></textarea>
+            </div>
+          </div>
+
+          <!-- 右側：4x4回転記号ボタン配置 -->
+          <div class="cube-right-col">
+            <div class="move-pad-grid">
+              <div class="move-spacer"></div>
+              <button class="move-btn" onclick="enqueueMoves('B')">B</button>
+              <button class="move-btn" onclick="enqueueMoves('B\'')">B'</button>
+              <div class="move-spacer"></div>
+
+              <button class="move-btn" onclick="enqueueMoves('L')">L</button>
+              <button class="move-btn" onclick="enqueueMoves('U')">U</button>
+              <button class="move-btn" onclick="enqueueMoves('U\'')">U'</button>
+              <button class="move-btn" onclick="enqueueMoves('R')">R</button>
+
+              <button class="move-btn" onclick="enqueueMoves('L\'')">L'</button>
+              <button class="move-btn" onclick="enqueueMoves('F')">F</button>
+              <button class="move-btn" onclick="enqueueMoves('F\'')">F'</button>
+              <button class="move-btn" onclick="enqueueMoves('R\'')">R'</button>
+
+              <div class="move-spacer"></div>
+              <button class="move-btn" onclick="enqueueMoves('D')">D</button>
+              <button class="move-btn" onclick="enqueueMoves('D\'')">D'</button>
+              <div class="move-spacer"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
