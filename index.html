@@ -1125,11 +1125,13 @@
                 <button class="page-nav-btn" onclick="changeDiaryPage(2)">⬅ 前のページを読む</button>
               </div>
 
-              <span class="diary-date">2026/6/24</span>
-              <p>半年間の研究の結果、隠された7つ目の世界の色が判明した。紫だ。</p>
-              <p style="margin-top: 10px;">ある古い文献の中に、このような内容が書かれていた。<br>「紫の世界を解放することで、永遠の幸福が与えられん。」</p>
-              <p style="margin-top: 10px;">紫といえば昔から、高貴な色として扱われてきた。<br>赤、橙、黄、緑、青、紫。なるほど、スペクトルの並びとしてもしっくり来る。<br>スペクトルと言えば、私もちょうど5年前に虹についての…。</p>
-              <p style="margin-top: 10px;">ところで、なんで今の世界では紫の世界が封印されていて、その代わりに「白の世界」があるんだろう？<br>白には全てを覆い尽くす力があると聞くが…まさかな。</p>
+             <div style="font-size: 0.84rem; line-height: 1.65;">
+                <span class="diary-date">2026/6/24</span>
+                <p>半年間の研究の結果、隠された7つ目の世界の色が判明した。紫だ。</p>
+                <p style="margin-top: 8px;">ある古い文献の中に、このような内容が書かれていた。<br>「紫の世界を解放することで、永遠の幸福が与えられん。」</p>
+                <p style="margin-top: 8px;">紫といえば昔から、高貴な色として扱われてきた。<br>赤、橙、黄、緑、青、紫。なるほど、スペクトルの並びとしてもしっくり来る。<br>スペクトルと言えば、私も<strong>ちょうど5年前に虹についての…。</strong></p>
+                <p style="margin-top: 8px;">ところで、なんで今の世界では紫の世界が封印されていて、その代わりに「白の世界」があるんだろう？<br>白には全てを覆い尽くす力があると聞くが…まさかな。</p>
+              </div>
             </div>
 
             <!-- 6ページ目（空白ページ） -->
@@ -1379,7 +1381,6 @@
       <div class="puzzle-panel">
         <div class="puzzle-header">
           <h2 class="puzzle-title">第五問</h2>
-          <p class="puzzle-desc">文字列の変化から導かれる言葉を答えよ</p>
         </div>
 
         <div class="board-container">
@@ -1548,7 +1549,7 @@
         playSuccessSound();
         msg.className = 'msg-box correct';
         msg.style.display = 'block';
-        msg.textContent = '紫の世界が解放されました';
+        msg.textContent = 'おめでとう。紫の世界が解放されました。';
         return;
       }
 
