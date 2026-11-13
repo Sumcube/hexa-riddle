@@ -1429,7 +1429,6 @@
       if (s2) s2.style.display = (pageIndex === 2) ? 'flex' : 'none';
       if (s3) s3.style.display = (pageIndex === 3) ? 'flex' : 'none';
     }
-    }
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playTone(freq, type = 'sine', duration = 0.15) {
       if (audioCtx.state === 'suspended') audioCtx.resume();
