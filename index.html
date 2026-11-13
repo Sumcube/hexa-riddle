@@ -912,6 +912,50 @@
       min-width: 110px;
       text-align: center;
     }
+    /* 第五問のレイアウト（白背景＋点線枠） */
+    .q5-board {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      align-items: center;
+      margin: 10px auto 24px;
+      background: #ffffff;
+      padding: 28px 40px;
+      border-radius: 10px;
+      border: 1.5px dashed #999999;
+      width: fit-content;
+      max-width: 100%;
+    }
+    .q5-group {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 24px;
+    }
+    .q5-words {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 1.15rem;
+      font-weight: bold;
+      letter-spacing: 0.14em;
+      color: #000000;
+      text-align: left;
+      font-family: monospace, sans-serif;
+    }
+    .q5-arrow {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #000000;
+    }
+    .q5-result {
+      font-size: 1.8rem;
+      font-weight: bold;
+      letter-spacing: 0.28em;
+      color: #000000;
+      min-width: 90px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -952,6 +996,7 @@
     <button id="q2-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q2', this)">第二問</button>
     <button id="q3-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q3', this)">第三問</button>
     <button id="q4-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q4', this)">第四問</button>
+    <button id="q5-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q5', this)">第五問</button>
   </nav>
 
   <main>
@@ -1056,12 +1101,39 @@
 
               <div style="margin-top: 16px;">
                 <span class="diary-date">2026/12/1</span>
-                <p>明日は僕の30歳の誕生日だ。しかし、”世界の歪み”はもう止められないところまで来てしまっているのかもしれない。やはりあの時、▪️▪️で▪️▪️▪️▪️▪️▪️▪️▪️▪️封印の解除が不完全な▪️▪️▪️▪️▪️▪️▪️▪️▪️▪️▪️▪️</p>
+                <p>明日は僕の30歳の誕生日だ。しかし、”世界の歪み”はもう止められないところまで来てしまっているのかもしれない。やはりあの時、▪️▪️で▪️▪️▪️▪️<br>禁忌の▪️▪️▪️▪️▪️▪️▪️▪️▪️▪️▪️▪️▪️や▪️▪️▪️▪️</p>
               </div>
 
-              <div class="warning-boundary">
+              <div id="diary-warning-1" class="warning-boundary">
                 ---------これより先は、世界閲覧の威権ランクが不足しています。上位権限を獲得してください。---------
               </div>
+
+              <!-- 第五問正解時に出現する次ページボタン -->
+              <div id="diary-next-spread3" class="page-nav-wrap page-nav-right" style="display: none;">
+                <button class="page-nav-btn" onclick="changeDiaryPage(3)">次のページを読む ➔</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- スプレッド3 (5ページ目 & 6ページ目：第五問正解後に閲覧可能) -->
+          <div id="spread-3" class="book-spread" style="display: none;">
+            <div class="book-spine-shadow"></div>
+
+            <!-- 5ページ目 -->
+            <div class="book-page page-left">
+              <div class="page-nav-wrap page-nav-left" style="margin-top: 0; margin-bottom: 12px; padding-top: 0;">
+                <button class="page-nav-btn" onclick="changeDiaryPage(2)">⬅ 前のページを読む</button>
+              </div>
+
+              <span class="diary-date">2026/6/24</span>
+              <p>半年間の研究の結果、隠された7つ目の世界の色が判明した。紫だ。</p>
+              <p style="margin-top: 10px;">ある古い文献の中に、このような内容が書かれていた。<br>「紫の世界を解放することで、永遠の幸福が与えられん。」</p>
+              <p style="margin-top: 10px;">紫といえば昔から、高貴な色として扱われてきた。<br>赤、橙、黄、緑、青、紫。なるほど、スペクトルの並びとしてもしっくり来る。<br>スペクトルと言えば、私もちょうど5年前に虹についての…。</p>
+              <p style="margin-top: 10px;">ところで、なんで今の世界では紫の世界が封印されていて、その代わりに「白の世界」があるんだろう？<br>白には全てを覆い尽くす力があると聞くが…まさかな。</p>
+            </div>
+
+            <!-- 6ページ目（空白ページ） -->
+            <div class="book-page page-right">
             </div>
           </div>
 
@@ -1302,19 +1374,61 @@
         <div id="q4-msg" class="msg-box"></div>
       </div>
     </section>
+    <!-- タブ7: 第五問 -->
+    <section id="tab-q5" class="tab-content">
+      <div class="puzzle-panel">
+        <div class="puzzle-header">
+          <h2 class="puzzle-title">第五問</h2>
+          <p class="puzzle-desc">文字列の変化から導かれる言葉を答えよ</p>
+        </div>
+
+        <div class="board-container">
+          <div class="q5-board">
+            <!-- 上段 -->
+            <div class="q5-group">
+              <div class="q5-words">
+                <div>ウォアグンミーップ</div>
+                <div>アォプミングウッー</div>
+              </div>
+              <div class="q5-arrow">→</div>
+              <div class="q5-result">なえ</div>
+            </div>
+
+            <!-- 下段（問題） -->
+            <div class="q5-group">
+              <div class="q5-words">
+                <div>ルーブキクッュービ</div>
+                <div>ューブックキルービ</div>
+                <div>ュキルークッビーブ</div>
+                <div>ビールークキュップ</div>
+              </div>
+              <div class="q5-arrow">→</div>
+              <div class="q5-result">？</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-row">
+          <input type="text" id="q5-input" class="text-input" placeholder="ひらがなで入力" autocomplete="off">
+          <button class="submit-btn" onclick="checkQ5()">送信</button>
+        </div>
+
+        <div id="q5-msg" class="msg-box"></div>
+      </div>
+    </section>
   </main>
 
   <script>
-    /* 日記のページめくり関数 */
+    /* 日記のページめくり関数（1〜3見開き対応） */
     function changeDiaryPage(pageIndex) {
-      playTone(500, 'sine', 0.08); // ページめくり音
-      if (pageIndex === 2) {
-        document.getElementById('spread-1').style.display = 'none';
-        document.getElementById('spread-2').style.display = 'flex';
-      } else {
-        document.getElementById('spread-2').style.display = 'none';
-        document.getElementById('spread-1').style.display = 'flex';
-      }
+      playTone(500, 'sine', 0.08);
+      const s1 = document.getElementById('spread-1');
+      const s2 = document.getElementById('spread-2');
+      const s3 = document.getElementById('spread-3');
+      if (s1) s1.style.display = (pageIndex === 1) ? 'flex' : 'none';
+      if (s2) s2.style.display = (pageIndex === 2) ? 'flex' : 'none';
+      if (s3) s3.style.display = (pageIndex === 3) ? 'flex' : 'none';
+    }
     }
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playTone(freq, type = 'sine', duration = 0.15) {
@@ -1417,24 +1531,39 @@
       renderSlots();
     }
 
+    let isPurpleSecretUnlocked = false; // 第五問クリアで true になるフラグ
+
     function checkQ2() {
       const msg = document.getElementById('q2-msg');
-      const correctPattern = ['green', 'red', 'orange', 'white'];
-      
-      const isMatch = selectedColors.length === correctPattern.length &&
-                      selectedColors.every((val, index) => val === correctPattern[index]);
+      const answer = ['green', 'red', 'orange', 'white'];
+      const secretAnswer = ['blue', 'blue', 'blue', 'blue', 'red'];
+
+      const isMatch = selectedColors.length === answer.length &&
+                      selectedColors.every((v, i) => v === answer[i]);
+
+      const isSecretMatch = isPurpleSecretUnlocked &&
+                            selectedColors.length === secretAnswer.length &&
+                            selectedColors.every((v, i) => v === secretAnswer[i]);
+
+      if (isSecretMatch) {
+        playSuccessSound();
+        msg.className = 'msg-box correct';
+        msg.style.display = 'block';
+        msg.textContent = '紫の世界が解放されました';
+        return;
+      }
 
       if (isMatch) {
         playSuccessSound();
         msg.className = 'msg-box correct';
+        msg.style.display = 'block';
         msg.textContent = '正解！ 第三問が出現しました。';
-        
-        /* 第三問タブを表示 */
         const q3Btn = document.getElementById('q3-tab-btn');
         if (q3Btn) q3Btn.style.setProperty('display', 'flex', 'important');
       } else {
         playErrorSound();
         msg.className = 'msg-box wrong';
+        msg.style.display = 'block';
         msg.textContent = '不正解。';
       }
     }
@@ -1495,11 +1624,13 @@
         return;
       }
 
-      if (val === 'たな') {
+     if (val === 'たな') {
         playSuccessSound();
         msg.className = 'msg-box correct';
         msg.style.display = 'block';
-        msg.textContent = '正解！';
+        msg.textContent = '正解！ 「第五問」が出現しました。';
+        const q5 = document.getElementById('q5-tab-btn');
+        if (q5) q5.style.setProperty('display', 'flex', 'important');
       } else {
         playErrorSound();
         msg.className = 'msg-box wrong';
@@ -1565,6 +1696,57 @@
     const overlayEl = document.getElementById('intro-overlay');
     if (overlayEl) {
       overlayEl.addEventListener('click', handleOverlayClick);
+    }
+    /* 第五問判定（「てがら」のみ正解・ひらがな以外禁止 -> 日記5ページ目＆第二問裏コマンド解放） */
+    function checkQ5() {
+      const inputEl = document.getElementById('q5-input') || document.querySelector('#tab-q5 input');
+      const val = inputEl ? inputEl.value.trim() : '';
+      if (!val) return;
+
+      let msg = document.getElementById('q5-msg');
+      if (!msg) {
+        msg = document.createElement('div');
+        msg.id = 'q5-msg';
+        const panel = document.querySelector('#tab-q5 .puzzle-panel') || document.getElementById('tab-q5');
+        if (panel) panel.appendChild(msg);
+      }
+
+      if (!/^[ぁ-んー]+$/.test(val)) {
+        playErrorSound();
+        msg.className = 'msg-box wrong';
+        msg.style.display = 'block';
+        msg.textContent = 'ひらがなで入力。';
+        return;
+      }
+
+      if (val === 'てがら') {
+        playSuccessSound();
+        msg.className = 'msg-box correct';
+        msg.style.display = 'block';
+        msg.textContent = '正解！佐村健人の日記の閲覧権限が追加されました。';
+
+        /* 日記4ページ目の制限表示を消し、5ページ目へのボタンを表示 */
+        const warn1 = document.getElementById('diary-warning-1');
+        if (warn1) warn1.style.display = 'none';
+        const nextBtn = document.getElementById('diary-next-spread3');
+        if (nextBtn) nextBtn.style.display = 'flex';
+
+        /* 第二問での「青・青・青・青・赤」入力を有効化 */
+        isPurpleSecretUnlocked = true;
+      } else {
+        playErrorSound();
+        msg.className = 'msg-box wrong';
+        msg.style.display = 'block';
+        msg.textContent = '不正解。';
+      }
+    }
+
+    const q5Input = document.getElementById('q5-input') || document.querySelector('#tab-q5 input');
+    if (q5Input) {
+      q5Input.addEventListener('keydown', e => {
+        if (e.isComposing || e.keyCode === 229) return;
+        if (e.key === 'Enter') { e.preventDefault(); checkQ5(); }
+      });
     }
   </script>
 </body>
