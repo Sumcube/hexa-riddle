@@ -1315,6 +1315,9 @@
                 <p style="margin-top: 10px;">
                   <a href="javascript:void(0)" onclick="unlockCubeApp()" style="color: #1d4ed8; text-decoration: underline; font-weight: bold; word-break: break-all;">
                     https://samura-lab.example.jp/tools/cube-simulator-3d/
+                     </a>
+                </p>
+              </div>
                   <!-- タイム計測モードクリア後に閲覧可能 -->
               <div id="diary-page6-entry-2" style="display: none; font-size: 0.9rem; line-height: 1.7; margin-top: 22px; padding-top: 16px; border-top: 1px dashed #b0a088;">
                 <span class="diary-date">2026/11/14</span>
@@ -1322,9 +1325,7 @@
                 <p style="margin-top: 8px;">
                   <a href="https://www.youtube.com/watch?v=RqwSyMiATE" target="_blank" rel="noopener noreferrer" style="color: #1d4ed8; text-decoration: underline; font-weight: bold; word-break: break-all;">
                     https://www.youtube.com/watch?v=RqwSyMiATE
-                  </a>
-                </p>
-              </div>
+                 
             </div>
           </div>
         </div>
@@ -1717,6 +1718,7 @@
             </div>
           </div>
         </div>
+       <div id="cube-solve-msg" class="msg-box"></div>
       </div>
     </section>
   </main>
@@ -2443,7 +2445,8 @@
         scramble.push(f + mods[Math.floor(Math.random() * mods.length)]);
       }
 
-      document.getElementById('cube-scramble-text').textContent = 'スクランブル: ' + scramble.join(' ');
+      const scrambleTextEl = document.getElementById('cube-scramble-text');
+      if (scrambleTextEl) scrambleTextEl.textContent = 'スクランブル: ' + scramble.join(' ');
       document.getElementById('cube-timer-val').textContent = '0.00';
 
       isScrambling = true;
