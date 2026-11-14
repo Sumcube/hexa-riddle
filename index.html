@@ -1125,6 +1125,150 @@
     .move-spacer {
       visibility: hidden;
     }
+    /* 右下に浮かぶ残留思念ウィジェット（背景暗転なし） */
+    .spirit-widget {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 900;
+      display: none;
+      align-items: flex-end;
+      gap: 12px;
+      max-width: 380px;
+      cursor: pointer;
+      animation: popBubble 0.25s ease-out;
+    }
+    .spirit-bubble {
+      background: rgba(15, 23, 42, 0.94);
+      color: #f8fafc;
+      border: 1.5px solid #a855f7;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
+      position: relative;
+    }
+    .spirit-hint {
+      display: block;
+      margin-top: 6px;
+      font-size: 0.72rem;
+      color: #c084fc;
+      text-align: right;
+    }
+    .spirit-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #c084fc, #4c1d95 75%, #090d16);
+      border: 2px solid #e9d5ff;
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.7);
+      flex-shrink: 0;
+    }
+
+    /* 第六問のレイアウト（白背景＋点線枠・縦仕切り貫通） */
+    .q6-board {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 10px auto 24px;
+      background: #ffffff;
+      padding: 28px 36px;
+      border-radius: 10px;
+      border: 1.5px dashed #999999;
+      width: fit-content;
+      max-width: 100%;
+    }
+    .q6-grid-wrap {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 18px;
+    }
+    .q6-blocks-col {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .q6-block-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .q6-block {
+      width: 42px;
+      height: 42px;
+      border: 2.5px solid #000000;
+      border-radius: 5px;
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
+    .q6-white  { background: #ffffff; }
+    .q6-red    { background: #ff0000; }
+    .q6-blue   { background: #0055bb; }
+    .q6-green  { background: #009944; }
+    .q6-indigo { background: #14445a; } /* 濃い青（藍色） */
+    .q6-vertical-line {
+      width: 3px;
+      height: 126px;
+      background-color: #0b4f71;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .q6-right-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      height: 112px;
+    }
+    .q6-res-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .q6-arrow {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #000000;
+    }
+    .q6-qmark {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #000000;
+      min-width: 36px;
+      text-align: center;
+    }
+    .q6-eq-vertical {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #000000;
+      line-height: 1;
+      transform: rotate(90deg);
+      margin-left: 36px;
+    }
+
+    /* 最終問題の文章ボックス */
+    .final-questions-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      border-radius: 10px;
+      padding: 28px 32px;
+      max-width: 680px;
+      margin: 16px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      font-size: 1.08rem;
+      line-height: 1.8;
+      color: #f1f5f9;
+    }
+    .final-q-item {
+      padding-left: 14px;
+      border-left: 3px solid #d4af37;
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -1163,11 +1307,12 @@
     <button class="tab-btn" onclick="switchTab('diary', this)">佐村健人の日記</button>
     <button id="cube-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('cube', this)">キューブアプリ</button>
     <button class="tab-btn" onclick="switchTab('q1', this)">第一問</button>
-     <!-- 初期状態：非表示 -->
     <button id="q2-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q2', this)">第二問</button>
     <button id="q3-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q3', this)">第三問</button>
     <button id="q4-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q4', this)">第四問</button>
     <button id="q5-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q5', this)">第五問</button>
+    <button id="q6-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q6', this)">第六問</button>
+    <button id="final-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('final', this)">最終問題</button>
  <!-- 進行状況リセットボタン -->
     <button class="tab-btn" style="margin-left: auto; color: #ff6b6b; border-color: rgba(255, 107, 107, 0.4); font-size: 0.8rem;" onclick="resetProgress()">リセット</button>
   </nav>
@@ -1327,6 +1472,41 @@
                     https://www.youtube.com/watch?v=RqwSyMiATE
                  </a>
                 </p>
+              </div>
+              <!-- 第六問正解時に出現する次ページボタン -->
+              <div id="diary-next-spread4" class="page-nav-wrap page-nav-right" style="display: none;">
+                <button class="page-nav-btn" onclick="changeDiaryPage(4)">次のページを読む ➔</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- スプレッド4 (7ページ目 & 8ページ目：第六問正解後に閲覧可能) -->
+          <div id="spread-4" class="book-spread" style="display: none;">
+            <div class="book-spine-shadow"></div>
+
+            <!-- 7ページ目 -->
+            <div class="book-page page-left">
+              <div class="page-nav-wrap page-nav-left" style="margin-top: 0; margin-bottom: 10px; padding-top: 0;">
+                <button class="page-nav-btn" onclick="changeDiaryPage(3)">⬅ 前のページを読む</button>
+              </div>
+
+              <div style="font-size: 0.82rem; line-height: 1.62;">
+                <span class="diary-date">2025/12/2</span>
+                <p>今日、僕の目の前に突然謎の人物が現れた。<br>なぜ「人物」などという曖昧な書き方をしているのかというと、姿がはっきりとは定まっていなかったからだ。<br>しかしその人物が醸し出すオーラ。確実に僕らより上位の存在であることは間違いない。これだけは断言できる。</p>
+                <p style="margin-top: 8px;">彼(以降、あえてそう書く)によると、私が「世界の守護者」とやらに任命されたらしい。</p>
+                <p style="margin-top: 8px;">はっきりと聞き取ることはできなかったが、世界の守護者になるにはいくつか条件があるらしい。<br>
+                ・3×3の公式平均Sub10<br>
+                ・その倍の数の面を持つパズルの公式平均Sub40<br>
+                (正五角形の対角線の長さは黄金比の数字だったり、世界の深淵に密接に関係しているらしい)<br>
+                ・生命の循環が30年経過していること<br>
+                (魂が生まれ落ちて30年ほど経過すると、魂が世界に定着するらしい。僕が29歳なのは法的な定義であって、胎児の期間を含めれば確かに30年か？)</p>
+              </div>
+            </div>
+
+            <!-- 8ページ目 -->
+            <div class="book-page page-right">
+              <div style="font-size: 0.86rem; line-height: 1.75; padding-top: 18px;">
+                <p>彼は「9.92…500を切ったところか。グリーンランクだな。」と言っていた。<br>よく分からないが、さらに上のランクになればより上位の権限を得ることができるらしい。やるしかないのか…。</p>
               </div>
             </div>
           </div>
@@ -1723,7 +1903,100 @@
        <div id="cube-solve-msg" class="msg-box"></div>
       </div>
     </section>
+    <!-- 第六問 -->
+    <section id="tab-q6" class="tab-content">
+      <div class="puzzle-panel">
+        <div class="puzzle-header">
+          <h2 class="puzzle-title">第六問</h2>
+          <p class="puzzle-desc">色と仕切りの法則から導かれる言葉を答えよ</p>
+        </div>
+
+        <div class="board-container">
+          <div class="q6-board">
+            <div class="q6-grid-wrap">
+              <!-- 左側のブロック群 -->
+              <div class="q6-blocks-col">
+                <!-- 上段: 白 赤 -->
+                <div class="q6-block-row">
+                  <div class="q6-block q6-white"></div>
+                  <div class="q6-block q6-red"></div>
+                </div>
+                <!-- 下段: 白 青 赤 -->
+                <div class="q6-block-row">
+                  <div class="q6-block q6-white"></div>
+                  <div class="q6-block q6-blue"></div>
+                  <div class="q6-block q6-red"></div>
+                </div>
+              </div>
+
+              <!-- 縦の仕切り線 -->
+              <div class="q6-vertical-line"></div>
+
+              <!-- 右側のブロック群 -->
+              <div class="q6-blocks-col">
+                <!-- 上段: 緑 藍 藍 -->
+                <div class="q6-block-row">
+                  <div class="q6-block q6-green"></div>
+                  <div class="q6-block q6-indigo"></div>
+                  <div class="q6-block q6-indigo"></div>
+                </div>
+                <!-- 下段: 白 藍 緑 -->
+                <div class="q6-block-row">
+                  <div class="q6-block q6-white"></div>
+                  <div class="q6-block q6-indigo"></div>
+                  <div class="q6-block q6-green"></div>
+                </div>
+              </div>
+
+              <!-- 矢印と「？ ＝ ？」 -->
+              <div class="q6-right-col">
+                <div class="q6-res-row">
+                  <div class="q6-arrow">→</div>
+                  <div class="q6-qmark">？</div>
+                </div>
+                <div class="q6-eq-vertical">＝</div>
+                <div class="q6-res-row">
+                  <div class="q6-arrow">→</div>
+                  <div class="q6-qmark">？</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-row">
+          <input type="text" id="q6-input" class="text-input" placeholder="ひらがなで入力" autocomplete="off">
+          <button class="submit-btn" onclick="checkQ6()">送信</button>
+        </div>
+
+        <div id="q6-msg" class="msg-box"></div>
+      </div>
+    </section>
+
+    <!-- 最終問題（文章のみ） -->
+    <section id="tab-final" class="tab-content">
+      <div class="puzzle-panel">
+        <div class="puzzle-header">
+          <h2 class="puzzle-title">最終問題</h2>
+        </div>
+
+        <div class="final-questions-box">
+          <div class="final-q-item">「佐村健人が7つ目の世界の封印を解放した方法は何か？」</div>
+          <div class="final-q-item">「その封印の解放が不完全だった理由は何か？」</div>
+          <div class="final-q-item">「封印を完全に解放し、世界の歪みを修復する方法は何か？その方法を実施して世界を救え。」</div>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <!-- 右下に浮かぶ残留思念（日記5ページ目・第六問用） -->
+  <div id="spirit-widget" class="spirit-widget" onclick="handleSpiritClick()">
+    <div class="spirit-bubble">
+      <div id="spirit-text"></div>
+      <span id="spirit-hint" class="spirit-hint">▼ クリックで続き / 閉じる</span>
+    </div>
+    <div class="spirit-avatar"></div>
+  </div>
 
   <script>
     /* 日記のページめくり関数（1〜3見開き対応） */
@@ -1844,11 +2117,13 @@
     }
 
     let isPurpleSecretUnlocked = false; // 第五問クリアで true になるフラグ
+    let isIndigoSecretUnlocked = false;
 
     function checkQ2() {
       const msg = document.getElementById('q2-msg');
       const answer = ['green', 'red', 'orange', 'white'];
       const secretAnswer = ['blue', 'blue', 'blue', 'blue', 'red'];
+      const indigoAnswer = ['blue', 'blue', 'green', 'blue', 'red', 'red'];
 
       const isMatch = selectedColors.length === answer.length &&
                       selectedColors.every((v, i) => v === answer[i]);
@@ -1856,12 +2131,24 @@
       const isSecretMatch = isPurpleSecretUnlocked &&
                             selectedColors.length === secretAnswer.length &&
                             selectedColors.every((v, i) => v === secretAnswer[i]);
-
+      const isIndigoMatch = isIndigoSecretUnlocked &&
+                            selectedColors.length === indigoAnswer.length &&
+                            selectedColors.every((v, i) => v === indigoAnswer[i]);
+      if (isIndigoMatch) {
+        playSuccessSound();
+        msg.className = 'msg-box correct';
+        msg.style.display = 'block';
+        msg.innerHTML = '藍の世界が解放されました。<br>第六問が追加されました。';
+        const q6Btn = document.getElementById('q6-tab-btn');
+        if (q6Btn) q6Btn.style.setProperty('display', 'flex', 'important');
+        saveProgress('q6', true);
+        return;
+      }
       if (isSecretMatch) {
         playSuccessSound();
         msg.className = 'msg-box correct';
         msg.style.display = 'block';
-        msg.innerHTML = '紫の世界が解放されました！<br>佐村健人の日記の閲覧権限が追加されました。';
+        msg.innerHTML = '紫の世界が解放されました。<br>佐村健人の日記の閲覧権限が追加されました。';
 
         const page6 = document.getElementById('diary-page6-entry');
         if (page6) page6.style.display = 'block';
@@ -2500,6 +2787,7 @@
       }
       const page6_2 = document.getElementById('diary-page6-entry-2');
       if (page6_2) page6_2.style.display = 'block';
+      isIndigoSecretUnlocked = true;
       saveProgress('diary6_final', true);
     }
 
@@ -2515,6 +2803,139 @@
         document.getElementById('stat-ao5').textContent = ao5.toFixed(2) + 's';
       } else {
         document.getElementById('stat-ao5').textContent = '-';
+      }
+    }
+    /* 第六問判定（「かつら」のみ正解 -> 日記7・8ページ＆最終問題タブ解放） */
+    function checkQ6() {
+      const inputEl = document.getElementById('q6-input') || document.querySelector('#tab-q6 input');
+      const val = inputEl ? inputEl.value.trim() : '';
+      if (!val) return;
+
+      let msg = document.getElementById('q6-msg');
+      if (!msg) {
+        msg = document.createElement('div');
+        msg.id = 'q6-msg';
+        const panel = document.querySelector('#tab-q6 .puzzle-panel') || document.getElementById('tab-q6');
+        if (panel) panel.appendChild(msg);
+      }
+
+      if (!/^[ぁ-んー]+$/.test(val)) {
+        playErrorSound();
+        msg.className = 'msg-box wrong';
+        msg.style.display = 'block';
+        msg.textContent = 'ひらがなのみで入力してください。';
+        return;
+      }
+
+      if (val === 'かつら') {
+        playSuccessSound();
+        msg.className = 'msg-box correct';
+        msg.style.display = 'block';
+        msg.innerHTML = '佐村健人の日記の閲覧権限が追加されました。<br>最終問題が出現しました。';
+
+        const nextBtn4 = document.getElementById('diary-next-spread4');
+        if (nextBtn4) nextBtn4.style.display = 'flex';
+        const finalBtn = document.getElementById('final-tab-btn');
+        if (finalBtn) finalBtn.style.setProperty('display', 'flex', 'important');
+
+        saveProgress('diary78', true);
+        saveProgress('finalQ', true);
+      } else {
+        playErrorSound();
+        msg.className = 'msg-box wrong';
+        msg.style.display = 'block';
+        msg.textContent = '不正解。';
+      }
+    }
+
+    const q6Input = document.getElementById('q6-input') || document.querySelector('#tab-q6 input');
+    if (q6Input) {
+      q6Input.addEventListener('keydown', e => {
+        if (e.isComposing || e.keyCode === 229) return;
+        if (e.key === 'Enter') { e.preventDefault(); checkQ6(); }
+      });
+    }
+    /* ==========================================
+       右下に浮かぶ残留思念の会話制御
+    ========================================== */
+    let spiritLines = [];
+    let spiritIndex = 0;
+
+    function showSpiritDialog(lines) {
+      const widget = document.getElementById('spirit-widget');
+      const textEl = document.getElementById('spirit-text');
+      const hintEl = document.getElementById('spirit-hint');
+      if (!widget || !textEl) return;
+
+      spiritLines = lines;
+      spiritIndex = 0;
+      textEl.textContent = spiritLines[0];
+      if (hintEl) {
+        hintEl.textContent = (spiritLines.length > 1) ? '▼ クリックで続き' : '▼ クリックで閉じる';
+      }
+      widget.style.display = 'flex';
+    }
+
+    function hideSpiritDialog() {
+      const widget = document.getElementById('spirit-widget');
+      if (widget) widget.style.display = 'none';
+    }
+
+    function handleSpiritClick() {
+      playTone(520, 'sine', 0.06);
+      spiritIndex++;
+      if (spiritIndex < spiritLines.length) {
+        const textEl = document.getElementById('spirit-text');
+        const hintEl = document.getElementById('spirit-hint');
+        if (textEl) textEl.textContent = spiritLines[spiritIndex];
+        if (hintEl) {
+          hintEl.textContent = (spiritIndex === spiritLines.length - 1) ? '▼ クリックで閉じる' : '▼ クリックで続き';
+        }
+      } else {
+        hideSpiritDialog();
+      }
+    }
+    let currentDiarySpread = 1;
+
+    function switchTab(id, el) {
+      playTone(440, 'sine', 0.08);
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      if (el) el.classList.add('active');
+      const targetTab = document.getElementById('tab-' + id);
+      if (targetTab) targetTab.classList.add('active');
+
+      // タブに応じた残留思念の表示切り替え
+      if (id === 'diary' && currentDiarySpread === 3) {
+        showSpiritDialog(['どうやら、どうにかして紫の世界を解放する必要があるみたいだね。']);
+      } else if (id === 'q6') {
+        showSpiritDialog([
+          '右側にある濃い青のような色は藍色のようだね。',
+          '仕切りの左側の色は何を表しているんだろう。'
+        ]);
+      } else {
+        hideSpiritDialog();
+      }
+
+      if (id === 'cube') {
+        initCube3D();
+        setTimeout(resizeCubeRenderer, 50);
+      }
+    }
+
+    function changeDiaryPage(pageIndex) {
+      playTone(500, 'sine', 0.08);
+      currentDiarySpread = pageIndex;
+      for (let i = 1; i <= 4; i++) {
+        const sp = document.getElementById('spread-' + i);
+        if (sp) sp.style.display = (pageIndex === i) ? 'flex' : 'none';
+      }
+
+      // 5ページ目（スプレッド3）を開いたときに右側に残留思念を表示
+      if (pageIndex === 3) {
+        showSpiritDialog(['どうやら、どうにかして紫の世界を解放する必要があるみたいだね。']);
+      } else {
+        hideSpiritDialog();
       }
     }
     /* ==========================================
@@ -2582,6 +3003,18 @@
       if (data.diary6_final) {
         const page6_2 = document.getElementById('diary-page6-entry-2');
         if (page6_2) page6_2.style.display = 'block';
+      }
+      if (data.q6) {
+        const q6 = document.getElementById('q6-tab-btn');
+        if (q6) q6.style.setProperty('display', 'flex', 'important');
+      }
+      if (data.diary78) {
+        const nextBtn4 = document.getElementById('diary-next-spread4');
+        if (nextBtn4) nextBtn4.style.display = 'flex';
+      }
+      if (data.finalQ) {
+        const finalBtn = document.getElementById('final-tab-btn');
+        if (finalBtn) finalBtn.style.setProperty('display', 'flex', 'important');
       }
     }
 
