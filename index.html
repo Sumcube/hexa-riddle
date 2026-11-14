@@ -1315,6 +1315,13 @@
                 <p style="margin-top: 10px;">
                   <a href="javascript:void(0)" onclick="unlockCubeApp()" style="color: #1d4ed8; text-decoration: underline; font-weight: bold; word-break: break-all;">
                     https://samura-lab.example.jp/tools/cube-simulator-3d/
+                  <!-- タイム計測モードクリア後に閲覧可能 -->
+              <div id="diary-page6-entry-2" style="display: none; font-size: 0.9rem; line-height: 1.7; margin-top: 22px; padding-top: 16px; border-top: 1px dashed #b0a088;">
+                <span class="diary-date">2026/11/14</span>
+                <p>このメッセージを残しておく。<br>残された時間は短い。</p>
+                <p style="margin-top: 8px;">
+                  <a href="https://www.youtube.com/watch?v=RqwSyMiATE" target="_blank" rel="noopener noreferrer" style="color: #1d4ed8; text-decoration: underline; font-weight: bold; word-break: break-all;">
+                    https://www.youtube.com/watch?v=RqwSyMiATE
                   </a>
                 </p>
               </div>
@@ -1624,7 +1631,6 @@
             <span>Ao5: <strong id="stat-ao5">-</strong></span>
             <span>回数: <strong id="stat-count">0</strong></span>
           </div>
-          <div id="cube-scramble-text" class="scramble-text">スクランブル: -</div>
         </div>
 
         <div class="cube-workspace">
@@ -2371,8 +2377,8 @@
         const pasted = (e.clipboardData || window.clipboardData).getData('text');
         const moves = parseMoveString(pasted);
         if (moves.length > 0) {
-          // 1手ずつ連続アニメーション（65ms/手）で素早く実行
-          enqueueMoves(moves.join(' '), { speed: 65 });
+          // 1手ずつ連続アニメーション（260ms/手）実行
+          enqueueMoves(moves.join(' '), { speed: 260 });
         }
       });
 
@@ -2430,7 +2436,7 @@
       const scramble = [];
       let prevFace = '';
 
-      for (let i = 0; i < 18; i++) {
+      for (let i = 0; i < 2; i++) {
         let f;
         do { f = faces[Math.floor(Math.random() * faces.length)]; } while (f === prevFace);
         prevFace = f;
@@ -2479,6 +2485,17 @@
 
       solveTimes.push(finalSec);
       updateTimerStats();
+
+      // 完成メッセージ表示＆日記6ページ目の追記を解放・保存
+      const solveMsg = document.getElementById('cube-solve-msg');
+      if (solveMsg) {
+        solveMsg.className = 'msg-box correct';
+        solveMsg.style.display = 'block';
+        solveMsg.textContent = '佐村健人の日記の閲覧権限が追加されました。';
+      }
+      const page6_2 = document.getElementById('diary-page6-entry-2');
+      if (page6_2) page6_2.style.display = 'block';
+      saveProgress('diary6_final', true);
     }
 
     function updateTimerStats() {
@@ -2556,6 +2573,10 @@
       if (data.cubeApp) {
         const cubeBtn = document.getElementById('cube-tab-btn');
         if (cubeBtn) cubeBtn.style.setProperty('display', 'flex', 'important');
+      }
+      if (data.diary6_final) {
+        const page6_2 = document.getElementById('diary-page6-entry-2');
+        if (page6_2) page6_2.style.display = 'block';
       }
     }
 
