@@ -1373,6 +1373,7 @@
   </div>
   <!-- オープニング暗転＆中央すりガラス会話 -->
   <div id="intro-overlay" class="intro-overlay">
+    <div id="intro-overlay" style="display: none;">
     <!-- 画面中央の会話ブロック -->
     <div class="intro-dialog-wrap">
       <div class="intro-speaker">
@@ -3279,7 +3280,14 @@
 
     // 「スタート」ボタンを押したらタイトル画面を閉じて最初の会話パートを開始
     function startIntroFromTitle() {
-      playSuccessSound(); // ユーザー操作によりWeb Audioもここで確実に有効化
+      playSuccessSound();
+
+      // 非表示にしていた最初の会話パートを表示
+      const introOverlay = document.getElementById('intro-overlay');
+      if (introOverlay) {
+        introOverlay.style.display = 'flex';
+      }
+
       const bootOverlay = document.getElementById('boot-overlay');
       if (bootOverlay) {
         bootOverlay.style.opacity = '0';
