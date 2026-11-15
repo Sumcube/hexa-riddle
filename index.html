@@ -1400,7 +1400,7 @@
   </header>
 
   <nav class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('myth', this)">六面世界の創世記</button>
+   <button id="genesis-tab-btn" class="tab-btn active" onclick="switchTab('genesis', this)">六面世界の創世記</button>
     <button class="tab-btn" onclick="switchTab('diary', this)">佐村健人の日記</button>
     <button id="cube-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('cube', this)">キューブアプリ</button>
     <button class="tab-btn" onclick="switchTab('q1', this)">第一問</button>
@@ -1414,10 +1414,10 @@
     <button class="tab-btn" style="margin-left: auto; color: #ff6b6b; border-color: rgba(255, 107, 107, 0.4); font-size: 0.8rem;" onclick="resetProgress()">リセット</button>
   </nav>
 
-  <main>
-    <!-- タブ1: 創世記 -->
+  <!-- タブ1: 創世記 / 真・六面世界の創世記：序章 -->
     <section id="tab-myth" class="tab-content active">
-      <div class="myth-scroll">
+      <!-- 元の創世記（藍の世界解放前） -->
+      <div id="myth-normal-content" class="myth-scroll">
         <div class="myth-header">
           <h2 class="myth-title">六面世界の創世記</h2>
           <span style="font-size: 0.8rem; color: #8f96a8; letter-spacing: 0.1em;">RECORD: GENESIS-00</span>
@@ -1437,6 +1437,36 @@
           <p>だが、失われし外典には続きが記されている。六面世界の中心部、何者の視線も届かぬ不可視の深淵には、決して開かれてはならぬ「七つ目の世界」が封じられていると。そこに眠るは、世界を無へと還す《災い》か、あるいは幸福を齎す《希望》か……。</p>
           <p>悠久の昔より、七つ目の深淵が解き放たれぬよう、世界の均衡をその手で繋ぎ止めてきた者たちがいた。世界の歪みを指先に感じ取り、乱れ狂う六面を瞬時に正しき調和へと導き続ける守護者――人は彼らを「スピードキューバー（SpeedCuber）」と呼ぶ。</p>
           <p>彼らが手にする立方体、それこそが六面世界の崩壊を防ぎ止める《世界の封印具》に他ならないのだ。</p>
+        </div>
+        <div class="myth-symbol">❖ ◈ ❖</div>
+      </div>
+
+      <!-- 真・六面世界の創世記：序章（藍の世界解放後） -->
+      <div id="myth-true-content" class="myth-scroll" style="display: none;">
+        <div class="myth-header">
+          <h2 class="myth-title">真・六面世界の創世記：序章</h2>
+          <span style="font-size: 0.8rem; color: #8f96a8; letter-spacing: 0.1em;">RECORD: TRUE-GENESIS-00</span>
+        </div>
+        <div class="myth-body">
+          <p>始まりの時、世界には、まだ色がなかった。<br>
+          光も、影も、天も、地もなく、ただ果てしない虚空だけが広がっていた。</p>
+          <p>その虚空に、創造神はひとつの秩序を与えようとした。<br>
+          神は月曜日から土曜日までの六日間、毎日ひとつずつ世界の面を創り出した。</p>
+          <p style="text-indent: 0; padding-left: 1em;">
+            最初に生まれたのは、すべての始まりを示す赤。<br>
+            次に、深遠なる知恵を宿す橙。<br>
+            そして、生命を照らす黄。<br>
+            命を育み、世界を巡らせる緑。<br>
+            静寂と深海の記憶を宿す青。<br>
+            最後に、宇宙の奥底を映す藍。
+          </p>
+          <p>こうして六つの面が揃い、世界はひとつの完全な立方体となった。<br>
+          六つの色は互いに異なる力を持ちながら、互いを侵すことなく、永遠の均衡を保っていた。</p>
+          <p>そして七日目。<br>
+          創造神は何も創らず、ただ世界を見守ることにした。<br>
+          後に人々は、この日を「安息の日」と呼んだ。</p>
+          <p>六つの面は、永遠に変わらぬものとされた。<br>
+          ——少なくとも、表向きには。</p>
         </div>
         <div class="myth-symbol">❖ ◈ ❖</div>
       </div>
@@ -2234,10 +2264,13 @@
         playSuccessSound();
         msg.className = 'msg-box correct';
         msg.style.display = 'block';
-        msg.innerHTML = '藍の世界が解放されました。<br>第六問が追加されました。';
+        msg.innerHTML = '藍の世界が解放されました。<br>第六問が追加されました。<br>真・六面世界の創世記：序章が公開されました。';
         const q6Btn = document.getElementById('q6-tab-btn');
         if (q6Btn) q6Btn.style.setProperty('display', 'flex', 'important');
+
+        unlockTrueGenesis();
         saveProgress('q6', true);
+        saveProgress('trueGenesis', true);
         return;
       }
       if (isSecretMatch) {
@@ -3293,6 +3326,16 @@
         setTimeout(() => bootOverlay.remove(), 500);
       }
     }
+    function unlockTrueGenesis() {
+      const tabBtn = document.getElementById('myth-tab-btn');
+      if (tabBtn) {
+        tabBtn.textContent = '真・六面世界の創世記：序章';
+      }
+      const normalContent = document.getElementById('myth-normal-content');
+      const trueContent = document.getElementById('myth-true-content');
+      if (normalContent) normalContent.style.display = 'none';
+      if (trueContent) trueContent.style.display = 'block';
+    }
     /* ==========================================
        進行状況の保存・復元・リセット（localStorage）
     ========================================== */
@@ -3370,6 +3413,9 @@
       if (data.finalQ) {
         const finalBtn = document.getElementById('final-tab-btn');
         if (finalBtn) finalBtn.style.setProperty('display', 'flex', 'important');
+      }
+      if (data.trueGenesis) {
+        unlockTrueGenesis();
       }
     }
 
