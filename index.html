@@ -1278,11 +1278,99 @@
       padding-left: 14px;
       border-left: 3px solid #d4af37;
     }
+    /* ローディング＆タイトルオーバーレイ */
+    #boot-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #141824 0%, #07090e 100%);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease;
+    }
+    #loading-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    #loading-cube-box {
+      width: 140px;
+      height: 140px;
+    }
+    .loading-text {
+      font-family: monospace;
+      font-size: 1.15rem;
+      letter-spacing: 0.2em;
+      color: #d4af37;
+      animation: pulseText 1s infinite alternate;
+    }
+    @keyframes pulseText {
+      from { opacity: 0.45; }
+      to   { opacity: 1; }
+    }
+
+    #title-stage {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 32px;
+      padding: 24px;
+      animation: fadeInTitle 0.6s ease-out;
+    }
+    @keyframes fadeInTitle {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .game-main-title {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: bold;
+      letter-spacing: 0.22em;
+      color: #f8fafc;
+      text-shadow: 0 0 24px rgba(212, 175, 55, 0.65), 0 2px 6px rgba(0, 0, 0, 0.9);
+      margin: 0;
+    }
+    .game-start-btn {
+      padding: 14px 52px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      letter-spacing: 0.25em;
+      color: #111111;
+      background: linear-gradient(135deg, #facc15 0%, #d4af37 100%);
+      border: 2px solid #fef08a;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 0 24px rgba(212, 175, 55, 0.45);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .game-start-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 34px rgba(250, 204, 21, 0.75);
+    }
+    .game-start-btn:active {
+      transform: scale(0.98);
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
+<!-- 起動画面：Now Loading (2秒) -> タイトル「六面世界からの脱出」＆スタートボタン -->
+  <div id="boot-overlay">
+    <!-- 1. ローディング表示 -->
+    <div id="loading-stage">
+      <div id="loading-cube-box"></div>
+      <div class="loading-text">Now Loading...</div>
+    </div>
 
+    <!-- 2. タイトル＆スタート画面 -->
+    <div id="title-stage">
+      <h1 class="game-main-title">六面世界からの脱出</h1>
+      <button type="button" class="game-start-btn" onclick="startIntroFromTitle()">スタート</button>
+    </div>
+  </div>
   <!-- オープニング暗転＆中央すりガラス会話 -->
   <div id="intro-overlay" class="intro-overlay">
     <!-- 画面中央の会話ブロック -->
@@ -3119,6 +3207,86 @@
       }
     }
     /* ==========================================
+       起動画面：2秒間キューブ回転 -> タイトル -> 会話開始
+    ========================================== */
+    let loadingAnimId = null;
+
+    function runBootSequence() {
+      const bootOverlay = document.getElementById('boot-overlay');
+      const loadingStage = document.getElementById('loading-stage');
+      const titleStage = document.getElementById('title-stage');
+      const cubeBox = document.getElementById('loading-cube-box');
+      if (!bootOverlay || !cubeBox) return;
+
+      // すでにオープニング視聴済みの場合は起動画面もスキップ
+      const data = getProgress();
+      if (data.introSeen) {
+        bootOverlay.remove();
+        return;
+      }
+
+      // Three.js でローディング用ミニキューブを描画・回転
+      if (typeof THREE !== 'undefined') {
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+        camera.position.set(4.2, 3.6, 4.6);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(140, 140);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        cubeBox.appendChild(renderer.domElement);
+
+        const miniGroup = new THREE.Group();
+        const geom = new THREE.BoxGeometry(0.92, 0.92, 0.92);
+        for (let x = -1; x <= 1; x++) {
+          for (let y = -1; y <= 1; y++) {
+            for (let z = -1; z <= 1; z++) {
+              const mats = [
+                new THREE.MeshBasicMaterial({ color: x === 1 ? FACE_COLORS.R : FACE_COLORS.INNER }),
+                new THREE.MeshBasicMaterial({ color: x === -1 ? FACE_COLORS.L : FACE_COLORS.INNER }),
+                new THREE.MeshBasicMaterial({ color: y === 1 ? FACE_COLORS.U : FACE_COLORS.INNER }),
+                new THREE.MeshBasicMaterial({ color: y === -1 ? FACE_COLORS.D : FACE_COLORS.INNER }),
+                new THREE.MeshBasicMaterial({ color: z === 1 ? FACE_COLORS.F : FACE_COLORS.INNER }),
+                new THREE.MeshBasicMaterial({ color: z === -1 ? FACE_COLORS.B : FACE_COLORS.INNER })
+              ];
+              const m = new THREE.Mesh(geom, mats);
+              m.position.set(x, y, z);
+              const edges = new THREE.EdgesGeometry(geom);
+              m.add(new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000 })));
+              miniGroup.add(m);
+            }
+          }
+        }
+        scene.add(miniGroup);
+
+        function animateLoadingCube() {
+          loadingAnimId = requestAnimationFrame(animateLoadingCube);
+          miniGroup.rotation.y += 0.045;
+          miniGroup.rotation.x += 0.025;
+          renderer.render(scene, camera);
+        }
+        animateLoadingCube();
+      }
+
+      // 2秒後に「Now Loading...」を消して「六面世界からの脱出」タイトル＆スタート画面へ
+      setTimeout(() => {
+        if (loadingAnimId) cancelAnimationFrame(loadingAnimId);
+        if (loadingStage) loadingStage.style.display = 'none';
+        if (titleStage) titleStage.style.display = 'flex';
+      }, 2000);
+    }
+
+    // 「スタート」ボタンを押したらタイトル画面を閉じて最初の会話パートを開始
+    function startIntroFromTitle() {
+      playSuccessSound(); // ユーザー操作によりWeb Audioもここで確実に有効化
+      const bootOverlay = document.getElementById('boot-overlay');
+      if (bootOverlay) {
+        bootOverlay.style.opacity = '0';
+        setTimeout(() => bootOverlay.remove(), 500);
+      }
+    }
+    /* ==========================================
        進行状況の保存・復元・リセット（localStorage）
     ========================================== */
     const STORAGE_KEY = 'cube_mystery_progress_v1';
@@ -3205,6 +3373,11 @@
     }
     /* ページ読み込み時に保存された進行状況を復元 */
   restoreProgress();
+    runBootSequence();
+    if (document.getElementById('tab-cube')?.classList.contains('active')) {
+      initCube3D();
+      setTimeout(resizeCubeRenderer, 50);
+    }
   </script>
 </body>
 </html>
