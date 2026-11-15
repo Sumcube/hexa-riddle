@@ -1122,6 +1122,11 @@
       background: #f3e8ff;
       border-color: #d8b4fe;
     }
+    .move-btn.wide-btn {
+      background: #fef3c7;
+      border-color: #fcd34d;
+      font-size: 0.95rem;
+    }
     .move-spacer {
       visibility: hidden;
     }
@@ -1845,23 +1850,23 @@
               <div class="move-spacer"></div>
               <div class="move-spacer"></div>
 
-              <!-- 2行目: [空] L U U' U2 R [空] -->
-              <div class="move-spacer"></div>
+              <!-- 2行目: Lw L U U' U2 R Rw -->
+              <button class="move-btn wide-btn" onclick="enqueueMoves('Lw')">Lw</button>
               <button class="move-btn" onclick="enqueueMoves('L')">L</button>
               <button class="move-btn" onclick="enqueueMoves('U')">U</button>
               <button class="move-btn" onclick="enqueueMoves('U\'')">U'</button>
               <button class="move-btn" onclick="enqueueMoves('U2')">U2</button>
               <button class="move-btn" onclick="enqueueMoves('R')">R</button>
-              <div class="move-spacer"></div>
+              <button class="move-btn wide-btn" onclick="enqueueMoves('Rw')">Rw</button>
 
-              <!-- 3行目: [空] L' F F' F2 R' [空] -->
-              <div class="move-spacer"></div>
+              <!-- 3行目: Lw' L' F F' F2 R' Rw' -->
+              <button class="move-btn wide-btn" onclick="enqueueMoves('Lw\'')">Lw'</button>
               <button class="move-btn" onclick="enqueueMoves('L\'')">L'</button>
               <button class="move-btn" onclick="enqueueMoves('F')">F</button>
               <button class="move-btn" onclick="enqueueMoves('F\'')">F'</button>
               <button class="move-btn" onclick="enqueueMoves('F2')">F2</button>
               <button class="move-btn" onclick="enqueueMoves('R\'')">R'</button>
-              <div class="move-spacer"></div>
+              <button class="move-btn wide-btn" onclick="enqueueMoves('Rw\'')">Rw'</button>
 
               <!-- 4行目: [空] L2 D D' D2 R2 [空] -->
               <div class="move-spacer"></div>
@@ -2634,6 +2639,22 @@
       const next = moveQueue.shift();
       performSingleAnimatedMove(next.move, next.speed, next.silent);
     }
+    /* 回転記号の解析（Lw, Rw などの2層回転にも対応） */
+    function parseMoveString(str) {
+      const normalized = str.replace(/’/g, "'");
+      const tokens = normalized.match(/([RLUDFB]w[2']?|[RLUDFBMSE][2']?|[xyz][2']?)/gi);
+      if (!tokens) return [];
+      return tokens.map(tok => {
+        if (/^[RLUDFB]w/i.test(tok)) {
+          return tok[0].toUpperCase() + 'w' + tok.slice(2);
+        }
+        const head = tok[0];
+        const rest = tok.slice(1);
+        const fixedHead = /[xyz]/i.test(head) ? head.toLowerCase() : head.toUpperCase();
+        return fixedHead + rest;
+      });
+    }
+
     function performSingleAnimatedMove(move, durationMs, silent) {
       isAnimatingMove = true;
       if (!silent) playTone(520, 'sine', 0.04);
@@ -2642,6 +2663,7 @@
         startSolveTimer();
       }
 
+      const isWide = move.length >= 2 && move[1] === 'w';
       const face = move[0];
       const prime = move.includes("'");
       const isDouble = move.includes('2');
@@ -2651,24 +2673,36 @@
       let layerFilter = () => false;
       let baseAngle = -Math.PI / 2;
 
-      switch (face) {
-        // 外層（基本6面）
-        case 'U': axis = 'y'; layerFilter = c => Math.round(c.position.y) === 1;  baseAngle = -Math.PI / 2; break;
-        case 'D': axis = 'y'; layerFilter = c => Math.round(c.position.y) === -1; baseAngle = Math.PI / 2;  break;
-        case 'R': axis = 'x'; layerFilter = c => Math.round(c.position.x) === 1;  baseAngle = -Math.PI / 2; break;
-        case 'L': axis = 'x'; layerFilter = c => Math.round(c.position.x) === -1; baseAngle = Math.PI / 2;  break;
-        case 'F': axis = 'z'; layerFilter = c => Math.round(c.position.z) === 1;  baseAngle = -Math.PI / 2; break;
-        case 'B': axis = 'z'; layerFilter = c => Math.round(c.position.z) === -1; baseAngle = Math.PI / 2;  break;
+      if (isWide) {
+        // 2層同時回転（Rw: x >= 0, Lw: x <= 0 など）
+        switch (face) {
+          case 'R': axis = 'x'; layerFilter = c => Math.round(c.position.x) >= 0;  baseAngle = -Math.PI / 2; break;
+          case 'L': axis = 'x'; layerFilter = c => Math.round(c.position.x) <= 0;  baseAngle = Math.PI / 2;  break;
+          case 'U': axis = 'y'; layerFilter = c => Math.round(c.position.y) >= 0;  baseAngle = -Math.PI / 2; break;
+          case 'D': axis = 'y'; layerFilter = c => Math.round(c.position.y) <= 0;  baseAngle = Math.PI / 2;  break;
+          case 'F': axis = 'z'; layerFilter = c => Math.round(c.position.z) >= 0;  baseAngle = -Math.PI / 2; break;
+          case 'B': axis = 'z'; layerFilter = c => Math.round(c.position.z) <= 0;  baseAngle = Math.PI / 2;  break;
+        }
+      } else {
+        switch (face) {
+          // 外層（基本6面）
+          case 'U': axis = 'y'; layerFilter = c => Math.round(c.position.y) === 1;  baseAngle = -Math.PI / 2; break;
+          case 'D': axis = 'y'; layerFilter = c => Math.round(c.position.y) === -1; baseAngle = Math.PI / 2;  break;
+          case 'R': axis = 'x'; layerFilter = c => Math.round(c.position.x) === 1;  baseAngle = -Math.PI / 2; break;
+          case 'L': axis = 'x'; layerFilter = c => Math.round(c.position.x) === -1; baseAngle = Math.PI / 2;  break;
+          case 'F': axis = 'z'; layerFilter = c => Math.round(c.position.z) === 1;  baseAngle = -Math.PI / 2; break;
+          case 'B': axis = 'z'; layerFilter = c => Math.round(c.position.z) === -1; baseAngle = Math.PI / 2;  break;
 
-        // 中列（M: Lと同じ向き / S: Fと同じ向き / E: Dと同じ向き）
-        case 'M': axis = 'x'; layerFilter = c => Math.round(c.position.x) === 0;  baseAngle = Math.PI / 2;  break;
-        case 'S': axis = 'z'; layerFilter = c => Math.round(c.position.z) === 0;  baseAngle = -Math.PI / 2; break;
-        case 'E': axis = 'y'; layerFilter = c => Math.round(c.position.y) === 0;  baseAngle = Math.PI / 2;  break;
+          // 中列（M: Lと同じ向き / S: Fと同じ向き / E: Dと同じ向き）
+          case 'M': axis = 'x'; layerFilter = c => Math.round(c.position.x) === 0;  baseAngle = Math.PI / 2;  break;
+          case 'S': axis = 'z'; layerFilter = c => Math.round(c.position.z) === 0;  baseAngle = -Math.PI / 2; break;
+          case 'E': axis = 'y'; layerFilter = c => Math.round(c.position.y) === 0;  baseAngle = Math.PI / 2;  break;
 
-        // 持ち替え記号（x: Rと同じ / y: Uと同じ / z: Fと同じ向きに全層回転）
-        case 'x': axis = 'x'; layerFilter = () => true; baseAngle = -Math.PI / 2; break;
-        case 'y': axis = 'y'; layerFilter = () => true; baseAngle = -Math.PI / 2; break;
-        case 'z': axis = 'z'; layerFilter = () => true; baseAngle = -Math.PI / 2; break;
+          // 持ち替え記号（x: Rと同じ / y: Uと同じ / z: Fと同じ向きに全層回転）
+          case 'x': axis = 'x'; layerFilter = () => true; baseAngle = -Math.PI / 2; break;
+          case 'y': axis = 'y'; layerFilter = () => true; baseAngle = -Math.PI / 2; break;
+          case 'z': axis = 'z'; layerFilter = () => true; baseAngle = -Math.PI / 2; break;
+        }
       }
 
       const angle = baseAngle * mult;
