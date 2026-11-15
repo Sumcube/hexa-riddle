@@ -1246,8 +1246,12 @@
       font-weight: 900;
       color: #000000;
       line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      margin-left: calc(1.6rem + 18px);
       transform: rotate(90deg);
-      margin-left: 36px;
     }
 
     /* 最終問題の文章ボックス */
@@ -2380,7 +2384,56 @@
     let timerInterval = null;
     let solveTimes = [];
     let isScrambling = false;
+    let isCubeSecretMode = false; // シークレットモードフラグ
+    let secretStationInput = '';  // ディスプレイに入力された山手線駅名を保持
 
+    // 山手線全30駅リスト（漢字・ひらがな・カタカナ対応）
+    const YAMANOTE_STATIONS = [
+      '東京', 'とうきょう', 'トウキョウ',
+      '有楽町', 'ゆうらくちょう', 'ユウラクチョウ',
+      '新橋', 'しんばし', 'シンバシ',
+      '浜松町', 'はままつちょう', 'ハママツチョウ',
+      '田町', 'たまち', 'タマチ',
+      '高輪ゲートウェイ', 'たかなわげーとうぇい', 'タカナワゲートウェイ',
+      '品川', 'しながわ', 'シナガワ',
+      '大崎', 'おおさき', 'オオサキ',
+      '五反田', 'ごたんだ', 'ゴタンダ',
+      '目黒', 'めぐろ', 'メグロ',
+      '恵比寿', 'えびす', 'エビス',
+      '渋谷', 'しぶや', 'シブヤ',
+      '原宿', 'はらじゅく', 'ハラジュク',
+      '代々木', 'よよぎ', 'ヨヨギ',
+      '新宿', 'しんじゅく', 'シンジュク',
+      '新大久保', 'しんおおくぼ', 'シンオオクボ',
+      '高田馬場', 'たかだのばば', 'タカダノババ',
+      '目白', 'めじろ', 'メジロ',
+      '池袋', 'いけぶくろ', 'イケブクロ',
+      '大塚', 'おおつか', 'オオツカ',
+      '巣鴨', 'すがも', 'スガモ',
+      '駒込', 'こまごめ', 'コマゴメ',
+      '田端', 'たばた', 'タバタ',
+      '西日暮里', 'にしにっぽり', 'ニシニッポリ',
+      '日暮里', 'にっぽり', 'ニッポリ',
+      '鶯谷', 'うぐいすだに', 'ウグイスダニ',
+      '上野', 'うえの', 'ウエノ',
+      '御徒町', 'おかちまち', 'オカチマチ',
+      '秋葉原', 'あきはばら', 'アキハバラ',
+      '神田', 'かんだ', 'カンダ'
+    ];
+
+    function normalizeStationName(text) {
+      return text.replace(/駅$/, '').trim();
+    }
+
+    function isYamanoteStation(text) {
+      const clean = normalizeStationName(text);
+      return YAMANOTE_STATIONS.includes(clean);
+    }
+
+    function isOsakiStation(text) {
+      const clean = normalizeStationName(text);
+      return clean === '大崎' || clean === 'おおさき' || clean === 'オオサキ';
+    }
     // 配色: 上(白), 下(黄), 前(緑), 後(青), 右(赤), 左(橙)
     const FACE_COLORS = {
       U: 0xffffff,
@@ -2509,25 +2562,72 @@
       });
     }
 
-    /* ボタンや貼り付けからの回転キュー追加 */
+    let secretMoveHistory = [];
+
     function enqueueMoves(moveStr, options = {}) {
       if (!isCubeInitialized) initCube3D();
       const moves = parseMoveString(moveStr);
       if (moves.length === 0) return;
 
       const display = document.getElementById('cube-move-display');
-      if (display && !options.skipDisplay) {
-        const current = display.value.trim();
-        display.value = current ? `${current} ${moves.join(' ')}` : moves.join(' ');
+      const currentRaw = display ? display.value.trim() : '';
+
+      // ディスプレイに山手線駅名が入力されているかチェック
+      if (isYamanoteStation(currentRaw)) {
+        secretStationInput = currentRaw;
+      } else if (currentRaw !== '' && !isYamanoteStation(secretStationInput)) {
+        secretStationInput = '';
+      }
+
+      const hasStation = isYamanoteStation(secretStationInput);
+
+      // 山手線駅名が入力されている間はディスプレイに回転記号を表示しない
+      if (display && !options.skipDisplay && !hasStation) {
+        display.value = currentRaw ? `${currentRaw} ${moves.join(' ')}` : moves.join(' ');
         display.scrollTop = display.scrollHeight;
       }
 
+      // 回転アニメーション実行
       moves.forEach(m => {
         const baseSpeed = options.speed || 130;
         const speed = m.includes('2') ? Math.round(baseSpeed * 1.45) : baseSpeed;
         moveQueue.push({ move: m, speed, silent: !!options.silent });
+
+        // シークレットコマンド履歴の蓄積
+        secretMoveHistory.push(m);
+        if (secretMoveHistory.length > 12) secretMoveHistory.shift();
       });
       processMoveQueue();
+
+      // 「大崎」が入力された状態で「B L U E B L U E B L U E」が入力されたらシークレットモード起動
+      const targetSeq = ['B', 'L', 'U', 'E', 'B', 'L', 'U', 'E', 'B', 'L', 'U', 'E'];
+      const isCodeMatched = secretMoveHistory.length === 12 &&
+                            secretMoveHistory.every((v, i) => v === targetSeq[i]);
+
+      if (isOsakiStation(secretStationInput) && isCodeMatched && !isCubeSecretMode) {
+        // アニメーション完了後にシークレットモード（見た目＝タイム計測モード）へ移行
+        const waitEnterSecret = setInterval(() => {
+          if (!isAnimatingMove && moveQueue.length === 0) {
+            clearInterval(waitEnterSecret);
+            activateSecretCubeMode();
+          }
+        }, 50);
+      }
+    }
+
+    function activateSecretCubeMode() {
+      isCubeSecretMode = true;
+      secretStationInput = '';
+      secretMoveHistory = [];
+      playSuccessSound();
+
+      // 見た目は通常のタイム計測モードと完全に同じ
+      cubeMode = 'timer';
+      document.getElementById('mode-free-btn').classList.remove('active');
+      document.getElementById('mode-timer-btn').classList.add('active');
+      document.getElementById('cube-timer-bar').style.display = 'flex';
+
+      startNewScramble();
     }
     function processMoveQueue() {
       if (isAnimatingMove || moveQueue.length === 0) return;
@@ -2660,28 +2760,48 @@
       return true;
     }
 
-    /* ディスプレイへの貼り付け・入力検知（一気にコピペされたら1手ずつ素早く回す） */
-    const moveDisplayEl = document.getElementById('cube-move-display');
+  const moveDisplayEl = document.getElementById('cube-move-display');
     if (moveDisplayEl) {
+      // 駅名手入力の検知
+      moveDisplayEl.addEventListener('input', () => {
+        const val = moveDisplayEl.value.trim();
+        if (isYamanoteStation(val)) {
+          secretStationInput = val;
+        } else {
+          secretStationInput = '';
+          secretMoveHistory = [];
+        }
+      });
+
       moveDisplayEl.addEventListener('paste', e => {
+        const pasted = (e.clipboardData || window.clipboardData).getData('text').trim();
+        // 貼り付け内容が山手線の駅名ならそのままディスプレイに残す
+        if (isYamanoteStation(pasted)) {
+          secretStationInput = pasted;
+          return;
+        }
         e.preventDefault();
-        const pasted = (e.clipboardData || window.clipboardData).getData('text');
         const moves = parseMoveString(pasted);
         if (moves.length > 0) {
-          // 1手ずつ連続アニメーション（260ms/手）実行
           enqueueMoves(moves.join(' '), { speed: 260 });
         }
       });
 
       moveDisplayEl.addEventListener('keydown', e => {
+        if (e.isComposing || e.keyCode === 229) return;
         if (e.key === 'Enter') {
           e.preventDefault();
           const lines = moveDisplayEl.value.trim().split('\n');
-          const lastLine = lines[lines.length - 1];
+          const lastLine = lines[lines.length - 1].trim();
+          // 駅名確定のEnterならディスプレイを消さずに保持
+          if (isYamanoteStation(lastLine)) {
+            secretStationInput = lastLine;
+            return;
+          }
           const moves = parseMoveString(lastLine);
           if (moves.length > 0) {
             moveDisplayEl.value = lines.slice(0, -1).join('\n');
-            enqueueMoves(moves.join(' '), { speed: 75 });
+            enqueueMoves(moves.join(' '), { speed: 300 });
           }
         }
       });
@@ -2690,6 +2810,8 @@
     function resetCubeState() {
       moveQueue = [];
       isAnimatingMove = false;
+      secretStationInput = '';
+      secretMoveHistory = [];
       buildCubies();
       const display = document.getElementById('cube-move-display');
       if (display) display.value = '';
@@ -2700,8 +2822,9 @@
       }
     }
 
-    /* モード切替（フリー操作 / csTimer風タイム計測） */
     function setCubeMode(mode) {
+      // 通常のモード切替ボタンを押した場合はシークレットモードを解除して通常動作へ戻る
+      isCubeSecretMode = false;
       cubeMode = mode;
       document.getElementById('mode-free-btn').classList.toggle('active', mode === 'free');
       document.getElementById('mode-timer-btn').classList.toggle('active', mode === 'timer');
@@ -2718,37 +2841,45 @@
       clearInterval(timerInterval);
       moveQueue = [];
       isAnimatingMove = false;
+      secretStationInput = '';
+      secretMoveHistory = [];
       buildCubies();
       const display = document.getElementById('cube-move-display');
       if (display) display.value = '';
 
-      const faces = ['R', 'L', 'U', 'D', 'F', 'B'];
-      const mods = ['', "'"];
-      const scramble = [];
-      let prevFace = '';
+      const solveMsg = document.getElementById('cube-solve-msg');
+      if (solveMsg) solveMsg.style.display = 'none';
 
-      for (let i = 0; i < 2; i++) {
-        let f;
-        do { f = faces[Math.floor(Math.random() * faces.length)]; } while (f === prevFace);
-        prevFace = f;
-        scramble.push(f + mods[Math.floor(Math.random() * mods.length)]);
+      let scramble = [];
+
+      if (isCubeSecretMode) {
+        // シークレットモード時は何回やっても必ずこの固定スクランブルを実行
+        scramble = parseMoveString("R2 F2 L2 B2 R2 D R U2 L2 B' D F D U L' D2 L2 B");
+      } else {
+        // 通常タイム計測モード時はランダム18手
+        const faces = ['R', 'L', 'U', 'D', 'F', 'B'];
+        const mods = ['', "'"];
+        let prevFace = '';
+        for (let i = 0; i < 18; i++) {
+          let f;
+          do { f = faces[Math.floor(Math.random() * faces.length)]; } while (f === prevFace);
+          prevFace = f;
+          scramble.push(f + mods[Math.floor(Math.random() * mods.length)]);
+        }
       }
 
-      const scrambleTextEl = document.getElementById('cube-scramble-text');
-      if (scrambleTextEl) scrambleTextEl.textContent = 'スクランブル: ' + scramble.join(' ');
       document.getElementById('cube-timer-val').textContent = '0.00';
 
       isScrambling = true;
       timerState = 'scrambling';
-      scramble.forEach((m, idx) => {
+      scramble.forEach(m => {
         moveQueue.push({
           move: m,
-          speed: 35,
+          speed: m.includes('2') ? 200 : 140,
           silent: true
         });
       });
 
-      // スクランブル終了検知用インターバル
       const waitScramble = setInterval(() => {
         if (!isAnimatingMove && moveQueue.length === 0) {
           clearInterval(waitScramble);
