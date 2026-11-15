@@ -2992,7 +2992,14 @@
     let spiritLines = [];
     let spiritIndex = 0;
 
-    function showSpiritDialog(lines) {
+    function showSpiritDialog(lines, onceKey = null) {
+      // onceKey が指定されていて、すでに表示済みなら何もしない
+      if (onceKey) {
+        const data = getProgress();
+        if (data[onceKey]) return;
+        saveProgress(onceKey, true);
+      }
+
       const widget = document.getElementById('spirit-widget');
       const textEl = document.getElementById('spirit-text');
       const hintEl = document.getElementById('spirit-hint');
@@ -3036,14 +3043,20 @@
       const targetTab = document.getElementById('tab-' + id);
       if (targetTab) targetTab.classList.add('active');
 
-      // タブに応じた残留思念の表示切り替え
+      // タブに応じた残留思念の表示（それぞれ初回のみ）
       if (id === 'diary' && currentDiarySpread === 3) {
-        showSpiritDialog(['どうやら、どうにかして紫の世界を解放する必要があるみたいだね。']);
+        showSpiritDialog(
+          ['どうやら、どうにかして紫の世界を解放する必要があるみたいだね。'],
+          'spirit_diary5_seen'
+        );
       } else if (id === 'q6') {
-        showSpiritDialog([
-          '右側にある濃い青のような色は藍色のようだね。',
-          '仕切りの左側の色は何を表しているんだろう。'
-        ]);
+        showSpiritDialog(
+          [
+            '右側にある濃い青のような色は藍色のようだね。',
+            '仕切りの左側の色は何を表しているんだろう。'
+          ],
+          'spirit_q6_seen'
+        );
       } else {
         hideSpiritDialog();
       }
@@ -3062,9 +3075,12 @@
         if (sp) sp.style.display = (pageIndex === i) ? 'flex' : 'none';
       }
 
-      // 5ページ目（スプレッド3）を開いたときに右側に残留思念を表示
+      // 5ページ目（スプレッド3）を開いたときも初回のみ表示
       if (pageIndex === 3) {
-        showSpiritDialog(['どうやら、どうにかして紫の世界を解放する必要があるみたいだね。']);
+        showSpiritDialog(
+          ['どうやら、どうにかして紫の世界を解放する必要があるみたいだね。'],
+          'spirit_diary5_seen'
+        );
       } else {
         hideSpiritDialog();
       }
