@@ -1143,10 +1143,10 @@
       cursor: pointer;
       animation: popBubble 0.25s ease-out;
     }
-    .spirit-bubble {
+        .spirit-bubble {
       background: rgba(15, 23, 42, 0.94);
-      color: #f8fafc;
-      border: 1.5px solid #a855f7;
+      color: #e2e8f0;
+      border: 1.5px solid #64748b;
       border-radius: 12px;
       padding: 12px 16px;
       font-size: 0.9rem;
@@ -1158,16 +1158,16 @@
       display: block;
       margin-top: 6px;
       font-size: 0.72rem;
-      color: #c084fc;
+      color: #94a3b8;
       text-align: right;
     }
     .spirit-avatar {
       width: 52px;
       height: 52px;
       border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #c084fc, #4c1d95 75%, #090d16);
-      border: 2px solid #e9d5ff;
-      box-shadow: 0 0 16px rgba(168, 85, 247, 0.7);
+      background: radial-gradient(circle at 35% 35%, #cbd5e1, #475569 70%, #0f172a);
+      border: 2px solid #94a3b8;
+      box-shadow: 0 0 12px rgba(148, 163, 184, 0.45);
       flex-shrink: 0;
     }
 
@@ -1353,6 +1353,83 @@
     .game-start-btn:active {
       transform: scale(0.98);
     }
+        .howto-box {
+      width: min(420px, 90vw);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      border-radius: 10px;
+      color: #e2e8f0;
+      text-align: left;
+    }
+    .howto-box summary {
+      cursor: pointer;
+      padding: 12px 16px;
+      font-weight: bold;
+      letter-spacing: 0.15em;
+      color: #d4af37;
+      text-align: center;
+      list-style: none;
+    }
+    .howto-box summary::-webkit-details-marker { display: none; }
+    .howto-box[open] summary { border-bottom: 1px solid rgba(212, 175, 55, 0.25); }
+    .howto-content {
+      padding: 14px 20px 18px;
+      font-size: 0.92rem;
+      line-height: 1.8;
+      max-height: 40vh;
+      overflow-y: auto;
+    }
+    .howto-content h3 {
+      font-size: 0.95rem;
+      color: #d4af37;
+      margin: 8px 0 4px;
+    }
+    .howto-content ul { padding-left: 1.2em; }
+        #allclear-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 26px;
+      padding: 24px;
+      text-align: center;
+      background: radial-gradient(circle at center, #1c2233 0%, #05070b 100%);
+      animation: fadeInTitle 0.8s ease-out;
+    }
+    .allclear-title {
+      font-size: clamp(1.6rem, 5vw, 2.6rem);
+      font-weight: bold;
+      letter-spacing: 0.15em;
+      color: #f8fafc;
+      text-shadow: 0 0 24px rgba(212, 175, 55, 0.7);
+    }
+    .allclear-ao5 {
+      font-family: monospace;
+      font-size: 1.4rem;
+      color: #ffd875;
+    }
+    .tweet-btn {
+      padding: 14px 40px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      color: #ffffff;
+      background: #0f1419;
+      border: 1.5px solid #e7e9ea;
+      border-radius: 50px;
+      cursor: pointer;
+    }
+    .tweet-btn:hover { background: #272c30; }
+    .allclear-close {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -1366,11 +1443,24 @@
     </div>
 
     <!-- 2. タイトル＆スタート画面 -->
-    <div id="title-stage">
+        <div id="title-stage">
       <h1 class="game-main-title">六面世界からの脱出</h1>
       <button type="button" class="game-start-btn" onclick="startIntroFromTitle()">スタート</button>
+
+      <details class="howto-box">
+        <summary>遊び方・注意</summary>
+        <div class="howto-content">
+          <h3>遊び方</h3>
+          <p>（準備中）</p>
+
+          <h3>注意事項</h3>
+          <ul>
+            <li>色の識別が必要な場面があります。</li>
+            <li>SNS等にネタバレを載せるのはやめてください。</li>
+          </ul>
+        </div>
+      </details>
     </div>
-  </div>
   <!-- オープニング暗転＆中央すりガラス会話 -->
   <div id="intro-overlay" class="intro-overlay" style="display: none;">
     <!-- 画面中央の会話ブロック -->
@@ -1928,6 +2018,8 @@
           <div class="mode-switch">
             <button id="mode-free-btn" class="mode-btn active" onclick="setCubeMode('free')">フリー操作モード</button>
             <button id="mode-timer-btn" class="mode-btn" onclick="setCubeMode('timer')">タイム計測モード</button>
+            <button id="mode-secret-label" class="mode-btn active" style="display: none; cursor: default;" disabled>シークレットモード</button>
+            <button id="mode-return-btn" class="mode-btn" style="display: none;" onclick="setCubeMode('free')">通常モードに戻る</button>
           </div>
         </div>
 
@@ -2115,7 +2207,13 @@
       </div>
     </section>
   </main>
-
+<!-- オールクリア画面 -->
+  <div id="allclear-overlay">
+    <div class="allclear-title">すべての謎を解き明かした！</div>
+    <div id="allclear-ao5" class="allclear-ao5"></div>
+    <button type="button" class="tweet-btn" onclick="shareAllClear()">結果をポストする</button>
+    <button type="button" class="allclear-close" onclick="closeAllClear()">閉じる</button>
+  </div>
   <!-- 右下に浮かぶ残留思念（日記5ページ目・第六問用） -->
   <div id="spirit-widget" class="spirit-widget" onclick="handleSpiritClick()">
     <div class="spirit-bubble">
@@ -2703,19 +2801,42 @@
       }
     }
 
-    function activateSecretCubeMode() {
+        function activateSecretCubeMode() {
       isCubeSecretMode = true;
       secretStationInput = '';
       secretMoveHistory = [];
       playSuccessSound();
 
-      // 見た目は通常のタイム計測モードと完全に同じ
       cubeMode = 'timer';
-      document.getElementById('mode-free-btn').classList.remove('active');
-      document.getElementById('mode-timer-btn').classList.add('active');
+      solveTimes = [];          // シークレットモードの記録は0から数える
+      resetTimerStats();
+      updateModeButtons();
       document.getElementById('cube-timer-bar').style.display = 'flex';
 
       startNewScramble();
+    }
+
+    /* モードボタンの表示切り替え（通常 ⇔ シークレット） */
+    function updateModeButtons() {
+      const show = (id, visible) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = visible ? '' : 'none';
+      };
+      show('mode-free-btn', !isCubeSecretMode);
+      show('mode-timer-btn', !isCubeSecretMode);
+      show('mode-secret-label', isCubeSecretMode);
+      show('mode-return-btn', isCubeSecretMode);
+
+      if (!isCubeSecretMode) {
+        document.getElementById('mode-free-btn').classList.toggle('active', cubeMode === 'free');
+        document.getElementById('mode-timer-btn').classList.toggle('active', cubeMode === 'timer');
+      }
+    }
+
+    function resetTimerStats() {
+      document.getElementById('stat-count').textContent = '0';
+      document.getElementById('stat-single').textContent = '-';
+      document.getElementById('stat-ao5').textContent = '-';
     }
     function processMoveQueue() {
       if (isAnimatingMove || moveQueue.length === 0) return;
@@ -2939,12 +3060,16 @@
       }
     }
 
-    function setCubeMode(mode) {
-      // 通常のモード切替ボタンを押した場合はシークレットモードを解除して通常動作へ戻る
+        function setCubeMode(mode) {
+      const wasSecret = isCubeSecretMode;
       isCubeSecretMode = false;
+      if (wasSecret) {
+        solveTimes = [];
+        resetTimerStats();
+      }
+
       cubeMode = mode;
-      document.getElementById('mode-free-btn').classList.toggle('active', mode === 'free');
-      document.getElementById('mode-timer-btn').classList.toggle('active', mode === 'timer');
+      updateModeButtons();
       const bar = document.getElementById('cube-timer-bar');
       bar.style.display = (mode === 'timer') ? 'flex' : 'none';
 
@@ -3016,7 +3141,7 @@
       }, 20);
     }
 
-    function stopSolveTimer() {
+       function stopSolveTimer() {
       clearInterval(timerInterval);
       timerState = 'solved';
       const finalSec = (performance.now() - timerStartTime) / 1000;
@@ -3024,10 +3149,23 @@
       playSuccessSound();
 
       solveTimes.push(finalSec);
-      updateTimerStats();
-
-      // 完成メッセージ表示＆日記6ページ目の追記を解放・保存
+      const ao5 = updateTimerStats();
       const solveMsg = document.getElementById('cube-solve-msg');
+
+      // シークレットモード：Ao5 が 7.2秒未満ならオールクリア
+      if (isCubeSecretMode) {
+        if (ao5 !== null && ao5 < 7.2) {
+          if (solveMsg) {
+            solveMsg.className = 'msg-box correct';
+            solveMsg.style.display = 'block';
+            solveMsg.textContent = 'すべての謎を解き明かした！';
+          }
+          setTimeout(() => showAllClear(ao5), 1500);
+        }
+        return;
+      }
+
+      // 通常のタイム計測モード：日記6ページ目の追記を解放
       if (solveMsg) {
         solveMsg.className = 'msg-box correct';
         solveMsg.style.display = 'block';
@@ -3038,8 +3176,25 @@
       isIndigoSecretUnlocked = true;
       saveProgress('diary6_final', true);
     }
+        function showAllClear(ao5) {
+      saveProgress('allClear', true);
+      const ao5El = document.getElementById('allclear-ao5');
+      if (ao5El) ao5El.textContent = 'Ao5: ' + ao5.toFixed(2) + 's';
+      document.getElementById('allclear-overlay').style.display = 'flex';
+      playSuccessSound();
+    }
 
-    function updateTimerStats() {
+    function shareAllClear() {
+      const text = '六面世界からの脱出のすべての謎を解き明かした！\n#六面世界からの脱出';
+      const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+      window.open(url, '_blank', 'noopener');
+    }
+
+    function closeAllClear() {
+      document.getElementById('allclear-overlay').style.display = 'none';
+    }
+
+       function updateTimerStats() {
       const count = solveTimes.length;
       document.getElementById('stat-count').textContent = count;
       document.getElementById('stat-single').textContent = solveTimes[count - 1].toFixed(2) + 's';
@@ -3049,10 +3204,11 @@
         const middle3 = last5.slice(1, 4);
         const ao5 = middle3.reduce((sum, v) => sum + v, 0) / 3;
         document.getElementById('stat-ao5').textContent = ao5.toFixed(2) + 's';
-      } else {
-        document.getElementById('stat-ao5').textContent = '-';
+        return ao5;
       }
-    }
+      document.getElementById('stat-ao5').textContent = '-';
+      return null;
+      }
     /* 第六問判定（「かつら」のみ正解 -> 日記7・8ページ＆最終問題タブ解放） */
     function checkQ6() {
       const inputEl = document.getElementById('q6-input') || document.querySelector('#tab-q6 input');
@@ -3173,6 +3329,10 @@
             '仕切りの左側の色は何を表しているんだろう。'
           ],
           'spirit_q6_seen'
+       } else if (id === 'cube') {
+        showSpiritDialog(
+          ['どうやら、この「タイム計測モード」でキューブを揃える必要があるようだね。'],
+          'spirit_cube_seen'
         );
       } else {
         hideSpiritDialog();
