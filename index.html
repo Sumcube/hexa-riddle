@@ -1400,7 +1400,7 @@
   </header>
 
   <nav class="tab-bar">
-   <button id="genesis-tab-btn" class="tab-btn active" onclick="switchTab('genesis', this)">六面世界の創世記</button>
+   <button id="myth-tab-btn" class="tab-btn active" onclick="switchTab('myth', this)">六面世界の創世記</button>
     <button class="tab-btn" onclick="switchTab('diary', this)">佐村健人の日記</button>
     <button id="cube-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('cube', this)">キューブアプリ</button>
     <button class="tab-btn" onclick="switchTab('q1', this)">第一問</button>
@@ -1413,7 +1413,7 @@
  <!-- 進行状況リセットボタン -->
     <button class="tab-btn" style="margin-left: auto; color: #ff6b6b; border-color: rgba(255, 107, 107, 0.4); font-size: 0.8rem;" onclick="resetProgress()">リセット</button>
   </nav>
-
+<main>
   <!-- タブ1: 創世記 / 真・六面世界の創世記：序章 -->
     <section id="tab-myth" class="tab-content active">
       <!-- 元の創世記（藍の世界解放前） -->
@@ -2125,16 +2125,6 @@
   </div>
 
   <script>
-    /* 日記のページめくり関数（1〜3見開き対応） */
-    function changeDiaryPage(pageIndex) {
-      playTone(500, 'sine', 0.08);
-      const s1 = document.getElementById('spread-1');
-      const s2 = document.getElementById('spread-2');
-      const s3 = document.getElementById('spread-3');
-      if (s1) s1.style.display = (pageIndex === 1) ? 'flex' : 'none';
-      if (s2) s2.style.display = (pageIndex === 2) ? 'flex' : 'none';
-      if (s3) s3.style.display = (pageIndex === 3) ? 'flex' : 'none';
-    }
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playTone(freq, type = 'sine', duration = 0.15) {
       if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -2160,20 +2150,6 @@
     function playErrorSound() {
       setTimeout(() => playTone(220, 'sawtooth', 0.18), 0);
       setTimeout(() => playTone(196, 'sawtooth', 0.25), 150);
-    }
-
-    function switchTab(tabId, el) {
-      playTone(440, 'sine', 0.08);
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      
-      el.classList.add('active');
-      document.getElementById('tab-' + tabId).classList.add('active');
-
-      if (tabId === 'cube') {
-        initCube3D();
-        setTimeout(resizeCubeRenderer, 50);
-      }
     }
 
     /* 第一問：送信ボタン（またはEnterキー）を押した時のみ判定 */
@@ -2673,20 +2649,6 @@
         cubeRenderer.render(cubeScene, cubeCamera);
       }
     }
-
-    /* 回転記号の解析（R, R', R2, M, S, E, x, y, z 対応） */
-    function parseMoveString(str) {
-      const normalized = str.replace(/’/g, "'");
-      const tokens = normalized.match(/([RLUDFBMSE][2']?|[xyz][2']?)/gi);
-      if (!tokens) return [];
-      return tokens.map(tok => {
-        const head = tok[0];
-        const rest = tok.slice(1);
-        const fixedHead = /[xyz]/i.test(head) ? head.toLowerCase() : head.toUpperCase();
-        return fixedHead + rest;
-      });
-    }
-
     let secretMoveHistory = [];
 
     function enqueueMoves(moveStr, options = {}) {
@@ -3401,6 +3363,7 @@
       if (data.diary6_final) {
         const page6_2 = document.getElementById('diary-page6-entry-2');
         if (page6_2) page6_2.style.display = 'block';
+        isIndigoSecretUnlocked = true;
       }
       if (data.q6) {
         const q6 = document.getElementById('q6-tab-btn');
