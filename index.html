@@ -319,18 +319,6 @@
       display: inline-block;
     }
 
-    .bookmark-ribbon {
-      position: absolute;
-      top: -6px;
-      right: 48px;
-      width: 22px;
-      height: 110px;
-      background: #8b1e1e;
-      box-shadow: 2px 3px 6px rgba(0,0,0,0.4);
-      z-index: 3;
-      clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%);
-    }
-
     @media (max-width: 680px) {
       .book-spread { flex-direction: column; }
       .book-spine-shadow { display: none; }
@@ -1130,16 +1118,14 @@
     .move-spacer {
       visibility: hidden;
     }
-    /* 右下に浮かぶ残留思念ウィジェット（背景暗転なし） */
+        /* 残留思念ウィジェット（開いているタブの右下に表示） */
     .spirit-widget {
-      position: fixed;
-      right: 24px;
-      bottom: 24px;
-      z-index: 900;
       display: none;
       align-items: flex-end;
+      justify-content: flex-end;
       gap: 12px;
-      max-width: 380px;
+      max-width: min(380px, 100%);
+      margin: 14px 0 0 auto;
       cursor: pointer;
       animation: popBubble 0.25s ease-out;
     }
@@ -1567,7 +1553,6 @@
     <section id="tab-diary" class="tab-content">
       <div class="book-wrapper">
         <div class="book">
-          <div class="bookmark-ribbon"></div>
           
           <!-- スプレッド1 (1ページ目 & 2ページ目) -->
           <div id="spread-1" class="book-spread">
@@ -3293,7 +3278,11 @@
       if (hintEl) {
         hintEl.textContent = (spiritLines.length > 1) ? '▼ クリックで続き' : '▼ クリックで閉じる';
       }
+      const activeTab = document.querySelector('.tab-content.active');
+      if (activeTab) activeTab.appendChild(widget);
       widget.style.display = 'flex';
+      // 画面外にあるときだけ、見える位置まで少しスクロールする
+      widget.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function hideSpiritDialog() {
