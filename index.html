@@ -908,6 +908,31 @@
     .q4-blue   { background: #0055bb; }
     .q4-yellow { background: #ffd700; }
     .q4-white  { background: #ffffff; }
+        .q4-orange { background: #ff5800; }
+    .q4-indigo { background: #14445a; }
+    .q6-group {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+    .q6-sep {
+      width: 100%;
+      border-top: 1.5px dashed #cccccc;
+    }
+    .q6-img {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+    .q6-caption {
+      font-size: 1.15rem;
+      font-weight: bold;
+      color: #000000;
+      letter-spacing: 0.08em;
+      margin-top: 4px;
+    }
     .q4-arrow {
       font-size: 1.6rem;
       font-weight: bold;
@@ -1176,94 +1201,6 @@
       border: 2px solid #94a3b8;
       box-shadow: 0 0 12px rgba(148, 163, 184, 0.45);
       flex-shrink: 0;
-    }
-
-    /* 第六問のレイアウト（白背景＋点線枠・縦仕切り貫通） */
-    .q6-board {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 10px auto 24px;
-      background: #ffffff;
-      padding: 28px 36px;
-      border-radius: 10px;
-      border: 1.5px dashed #999999;
-      width: fit-content;
-      max-width: 100%;
-    }
-    .q6-grid-wrap {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 18px;
-    }
-    .q6-blocks-col {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-    .q6-block-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 8px;
-    }
-    .q6-block {
-      width: 42px;
-      height: 42px;
-      border: 2.5px solid #000000;
-      border-radius: 5px;
-      box-sizing: border-box;
-      flex-shrink: 0;
-    }
-    .q6-white  { background: #ffffff; }
-    .q6-red    { background: #ff0000; }
-    .q6-blue   { background: #0055bb; }
-    .q6-green  { background: #009944; }
-    .q6-indigo { background: #14445a; } /* 濃い青（藍色） */
-    .q6-vertical-line {
-      width: 3px;
-      height: 126px;
-      background-color: #0b4f71;
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-    .q6-right-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      height: 112px;
-    }
-    .q6-res-row {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-    }
-    .q6-arrow {
-      font-size: 1.6rem;
-      font-weight: bold;
-      color: #000000;
-    }
-    .q6-qmark {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: #000000;
-      min-width: 36px;
-      text-align: center;
-    }
-    .q6-eq-vertical {
-      font-size: 1.4rem;
-      font-weight: 900;
-      color: #000000;
-      line-height: 1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      margin-left: calc(1.6rem + 18px);
-      transform: rotate(90deg);
     }
 
     /* 最終問題の文章ボックス */
@@ -2143,60 +2080,57 @@
       </div>
     </section>
     <!-- 第六問 -->
-    <section id="tab-q6" class="tab-content">
-      <div class="puzzle-panel">
-        <div class="puzzle-header">
-          <h2 class="puzzle-title">第六問</h2>
+            <div class="q4-board">
+          <!-- 上のブロック -->
+          <div class="q6-group">
+            <div class="q4-row">
+              <div class="q4-blocks-area">
+                <div class="q4-block q4-green"></div>
+                <div class="q4-block q4-green"></div>
+                <div class="q4-block q4-green"></div>
+              </div>
+              <div class="q4-arrow">→</div>
+              <div class="q4-text">もり</div>
+            </div>
+            <div class="q4-row">
+              <div class="q4-blocks-area">
+                <div class="q4-block q4-green"></div>
+                <div class="q4-block q4-indigo"></div>
+                <div class="q4-block q4-indigo"></div>
+              </div>
+              <div class="q4-arrow">→</div>
+              <div class="q4-text">？</div>
+            </div>
+          </div>
+
+          <div class="q6-sep"></div>
+
+          <!-- 下のブロック -->
+          <div class="q6-group">
+            <div class="q4-row">
+              <div class="q4-blocks-area">
+                <div class="q4-block q4-blue"></div>
+                <div class="q4-block q4-orange"></div>
+                <div class="q4-block q4-yellow"></div>
+              </div>
+              <div class="q4-arrow">→</div>
+              <div class="q4-text">
+                <img src="1.png" alt="人" class="q6-img" onerror="this.onerror=null; this.parentElement.textContent='🧍';">
+              </div>
+            </div>
+            <div class="q4-row">
+              <div class="q4-blocks-area">
+                <div class="q4-block q4-white"></div>
+                <div class="q4-block q4-indigo"></div>
+                <div class="q4-block q4-green"></div>
+              </div>
+              <div class="q4-arrow">→</div>
+              <div class="q4-text">？</div>
+            </div>
+          </div>
+
+          <div class="q6-caption">？に共通して入るものは？</div>
         </div>
-
-        <div class="board-container">
-          <div class="q6-board">
-            <div class="q6-grid-wrap">
-              <!-- 左側のブロック群 -->
-              <div class="q6-blocks-col">
-                <!-- 上段: 白 赤 -->
-                <div class="q6-block-row">
-                  <div class="q6-block q6-white"></div>
-                  <div class="q6-block q6-red"></div>
-                </div>
-                <!-- 下段: 白 青 赤 -->
-                <div class="q6-block-row">
-                  <div class="q6-block q6-white"></div>
-                  <div class="q6-block q6-blue"></div>
-                  <div class="q6-block q6-red"></div>
-                </div>
-              </div>
-
-              <!-- 縦の仕切り線 -->
-              <div class="q6-vertical-line"></div>
-
-              <!-- 右側のブロック群 -->
-              <div class="q6-blocks-col">
-                <!-- 上段: 緑 藍 藍 -->
-                <div class="q6-block-row">
-                  <div class="q6-block q6-green"></div>
-                  <div class="q6-block q6-indigo"></div>
-                  <div class="q6-block q6-indigo"></div>
-                </div>
-                <!-- 下段: 白 藍 緑 -->
-                <div class="q6-block-row">
-                  <div class="q6-block q6-white"></div>
-                  <div class="q6-block q6-indigo"></div>
-                  <div class="q6-block q6-green"></div>
-                </div>
-              </div>
-
-              <!-- 矢印と「？ ＝ ？」 -->
-              <div class="q6-right-col">
-                <div class="q6-res-row">
-                  <div class="q6-arrow">→</div>
-                  <div class="q6-qmark">？</div>
-                </div>
-                <div class="q6-eq-vertical">＝</div>
-                <div class="q6-res-row">
-                  <div class="q6-arrow">→</div>
-                  <div class="q6-qmark">？</div>
-                </div>
               </div>
             </div>
           </div>
@@ -3372,7 +3306,7 @@
         showSpiritDialog(
           [
             '右側にある濃い青のような色は藍色のようだね。',
-            '仕切りの左側の色は何を表しているんだろう。'
+            'どうやら、今まで解いてきた謎のルールが用いられているようだ。'
           ],
           'spirit_q6_seen'
           );
