@@ -81,6 +81,34 @@
       80% { opacity: 0.4; }
       100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
     }
+        .top-controls {
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    .top-ctrl-btn {
+      background: rgba(22, 27, 40, 0.6);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: #a8b0c4;
+      font-family: var(--font-serif);
+      font-size: 0.8rem;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .top-ctrl-btn:hover {
+      color: #ffffff;
+      border-color: var(--gold-accent);
+    }
+    .top-ctrl-btn.danger {
+      color: #ff6b6b;
+      border-color: rgba(255, 107, 107, 0.4);
+    }
 
     header {
       width: 100%;
@@ -1432,6 +1460,10 @@
   <header>
     <h1 class="site-title">HEXA ARCHIVE</h1>
     <p class="site-sub">中央特務観測機関・機密保管記録</p>
+      <div class="top-controls">
+    <button type="button" class="top-ctrl-btn" onclick="returnToTitle()">オープニングに戻る</button>
+    <button type="button" class="top-ctrl-btn danger" onclick="resetProgress()">リセット</button>
+  </div>
   </header>
 
   <nav class="tab-bar">
@@ -1445,8 +1477,6 @@
     <button id="q5-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q5', this)">第五問</button>
     <button id="q6-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q6', this)">第六問</button>
     <button id="final-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('final', this)">最終問題</button>
- <!-- 進行状況リセットボタン -->
-    <button class="tab-btn" style="margin-left: auto; color: #ff6b6b; border-color: rgba(255, 107, 107, 0.4); font-size: 0.8rem;" onclick="resetProgress()">リセット</button>
   </nav>
 <main>
   <!-- タブ1: 創世記 / 真・六面世界の創世記：序章 -->
@@ -3359,7 +3389,7 @@
       // すでにオープニング視聴済みの場合は起動画面もスキップ
       const data = getProgress();
       if (data.introSeen) {
-        bootOverlay.remove();
+      bootOverlay.style.display = 'none';
         return;
       }
 
@@ -3416,20 +3446,33 @@
     }
 
     // 「スタート」ボタンを押したらタイトル画面を閉じて最初の会話パートを開始
+        // 「スタート」ボタン：タイトル画面を閉じる（会話は初回のみ）
     function startIntroFromTitle() {
       playSuccessSound();
 
-      // 非表示にしていた最初の会話パートを表示
-      const introOverlay = document.getElementById('intro-overlay');
-      if (introOverlay) {
-        introOverlay.style.display = 'flex';
+      if (!getProgress().introSeen) {
+        const introOverlay = document.getElementById('intro-overlay');
+        if (introOverlay) introOverlay.style.display = 'flex';
       }
 
       const bootOverlay = document.getElementById('boot-overlay');
       if (bootOverlay) {
         bootOverlay.style.opacity = '0';
-        setTimeout(() => bootOverlay.remove(), 500);
+        setTimeout(() => { bootOverlay.style.display = 'none'; }, 500);
       }
+    }
+
+    // 「オープニングに戻る」ボタン：タイトル画面（スタート・遊び方）を再表示
+    function returnToTitle() {
+      playTone(440, 'sine', 0.08);
+      hideSpiritDialog();
+
+      const bootOverlay = document.getElementById('boot-overlay');
+      if (!bootOverlay) return;
+      document.getElementById('loading-stage').style.display = 'none';
+      document.getElementById('title-stage').style.display = 'flex';
+      bootOverlay.style.display = 'flex';
+      requestAnimationFrame(() => { bootOverlay.style.opacity = '1'; });
     }
     function unlockTrueGenesis() {
       const tabBtn = document.getElementById('myth-tab-btn');
