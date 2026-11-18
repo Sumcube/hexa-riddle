@@ -2267,48 +2267,14 @@
       setTimeout(() => playTone(1046.50, 'triangle', 0.4), 360);
     }
 
-    function playErrorSound() {
-      setTimeout(() => playTone(220, 'sawtooth', 0.18), 0);
-      setTimeout(() => playTone(196, 'sawtooth', 0.25), 150);
-    }
-        /* 紙をめくる音（ノイズを加工して作成） */
+       /* 紙をめくる音（page.mp3） */
+    const pageFlipSE = new Audio('page.mp3');
+    pageFlipSE.preload = 'auto';
+
     function playPageFlip() {
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      const now = audioCtx.currentTime;
-      const duration = 0.45;
-
-      // 紙のこすれ（ザラザラしたノイズ）
-      const length = Math.floor(audioCtx.sampleRate * duration);
-      const buffer = audioCtx.createBuffer(1, length, audioCtx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < length; i++) {
-        const crackle = Math.random() < 0.02 ? (Math.random() * 2 - 1) * 1.5 : 0;
-        data[i] = (Math.random() * 2 - 1) * 0.6 + crackle;
-      }
-      const src = audioCtx.createBufferSource();
-      src.buffer = buffer;
-
-      // 音の高さを「シャッ」と上げてから落とす
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.Q.value = 0.8;
-      filter.frequency.setValueAtTime(1200, now);
-      filter.frequency.exponentialRampToValueAtTime(4500, now + 0.18);
-      filter.frequency.exponentialRampToValueAtTime(2000, now + duration);
-
-      // 音量：めくり始め → 一瞬弱まる → ページが落ちる「パサッ」 → 消える
-      const gain = audioCtx.createGain();
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.35, now + 0.06);
-      gain.gain.exponentialRampToValueAtTime(0.12, now + 0.2);
-      gain.gain.exponentialRampToValueAtTime(0.25, now + 0.28);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-
-      src.connect(filter);
-      filter.connect(gain);
-      gain.connect(audioCtx.destination);
-      src.start(now);
-      src.stop(now + duration);
+      const se = pageFlipSE.cloneNode();  // 連打しても音が途切れないように複製して鳴らす
+      se.volume = 0.8;
+      se.play().catch(() => {});
     }
 
     /* 第一問：送信ボタン（またはEnterキー）を押した時のみ判定 */
