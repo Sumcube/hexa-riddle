@@ -2272,6 +2272,10 @@
       setTimeout(() => playTone(783.99, 'triangle', 0.2), 240);
       setTimeout(() => playTone(1046.50, 'triangle', 0.4), 360);
     }
+      function playErrorSound() {
+      setTimeout(() => playTone(220, 'sawtooth', 0.18), 0);
+      setTimeout(() => playTone(196, 'sawtooth', 0.25), 150);
+    }
 
        /* 紙をめくる音（page.mp3） */
     const pageFlipSE = new Audio('page.mp3');
@@ -2663,7 +2667,18 @@
       const clean = normalizeStationName(text);
       return YAMANOTE_STATIONS.includes(clean);
     }
-
+    
+    // 配色: 上(白), 下(黄), 前(緑), 後(青), 右(赤), 左(橙)
+    const FACE_COLORS = {
+      U: 0xffffff,
+      D: 0xffd500,
+      F: 0x009b48,
+      B: 0x0045ad,
+      R: 0xb90000,
+      L: 0xff5900,
+      INNER: 0x18181b
+    };
+    
     function initCube3D() {
       if (isCubeInitialized) return;
       const wrap = document.getElementById('cube-canvas-wrap');
@@ -2769,7 +2784,7 @@
     }
     let secretMoveHistory = [];
     let secretCheckTimer = null;
-    if (cubeMode === 'timer' && !isScrambling) solveMoveLog.push(m);
+    let solveMoveLog = [];
 
     function enqueueMoves(moveStr, options = {}) {
       if (!isCubeInitialized) initCube3D();
@@ -2796,6 +2811,7 @@
 
       // 回転アニメーション実行
       moves.forEach(m => {
+        if (cubeMode === 'timer' && !isScrambling) solveMoveLog.push(m);
         const baseSpeed = options.speed || 130;
         const speed = m.includes('2') ? Math.round(baseSpeed * 1.45) : baseSpeed;
         moveQueue.push({ move: m, speed, silent: !!options.silent });
@@ -3110,6 +3126,7 @@
       isAnimatingMove = false;
       secretStationInput = '';
       secretMoveHistory = [];
+      solveMoveLog = [];
       buildCubies();
       const display = document.getElementById('cube-move-display');
       if (display) display.value = '';
