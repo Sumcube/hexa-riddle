@@ -1402,6 +1402,40 @@
       cursor: pointer;
       font-size: 0.9rem;
     }
+      .allclear-sub {
+      font-size: 1.05rem;
+      color: #ffd875;
+      letter-spacing: 0.08em;
+    }
+    .myth-divider {
+      border: none;
+      border-top: 1px dashed rgba(212, 175, 55, 0.3);
+      width: 60%;
+      margin: 32px auto;
+    }
+        .myth-body p.myth-chapter {
+      text-indent: 0;
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      color: var(--gold-accent);
+      margin-bottom: 24px;
+    }
+    .myth-voice {
+      margin-top: 40px;
+      padding: 18px 24px;
+      border-left: 3px solid #94a3b8;
+      background: rgba(148, 163, 184, 0.08);
+      border-radius: 4px;
+      font-family: var(--font-hand);
+      color: #cbd5e1;
+    }
+    .myth-body .myth-voice p {
+      text-indent: 0;
+      margin-bottom: 0;
+      line-height: 2;
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -1507,6 +1541,7 @@
       </div>
 
      <div id="myth-true-content" class="myth-scroll" style="display: none;"></div>
+     <div id="myth-complete-content" class="myth-scroll" style="display: none;"></div>
     </section>
 
    <!-- タブ2: 日記 -->
@@ -2731,14 +2766,15 @@
            // シークレットモード：Ao5 が 7.2秒未満なら、最後の手順をサーバーで確認
       if (isCubeSecretMode) {
         if (ao5 !== null && ao5 < 7.2) {
-          askServer('final', solveMoveLog.join(' ')).then(r => {
+          askServer('final', solveMoveLog.join(' ')).then(async r => {
             if (!r.ok) return;
             if (solveMsg) {
               solveMsg.className = 'msg-box correct';
               solveMsg.style.display = 'block';
               solveMsg.textContent = 'すべての謎を解き明かした！';
             }
-            setTimeout(() => showAllClear(ao5), 1500);
+            await refreshContent();
+            setTimeout(() => showAllClear(ao5, r.message), 1500);
           });
         }
         return;
@@ -2759,10 +2795,10 @@
       isIndigoSecretUnlocked = true;
       saveProgress('diary6_final', true);
     }
-        function showAllClear(ao5) {
+      function showAllClear(ao5, subText) {
       saveProgress('allClear', true);
-      const ao5El = document.getElementById('allclear-ao5');
-      if (ao5El) ao5El.textContent = 'Ao5: ' + ao5.toFixed(2) + 's';
+      const subEl = document.getElementById('allclear-sub');
+      if (subEl) subEl.textContent = subText || '';
       document.getElementById('allclear-overlay').style.display = 'flex';
       playSuccessSound();
     }
@@ -3005,13 +3041,17 @@
       requestAnimationFrame(() => { bootOverlay.style.opacity = '1'; });
     }
       function unlockTrueGenesis() {
-      const normalContent = document.getElementById('myth-normal-content');
-      const trueContent = document.getElementById('myth-true-content');
-      if (!trueContent || !trueContent.dataset.filled) return;
-      if (normalContent) normalContent.style.display = 'none';
-      trueContent.style.display = 'block';
+      const normal = document.getElementById('myth-normal-content');
+      const trueEl = document.getElementById('myth-true-content');
+      const fullEl = document.getElementById('myth-complete-content');
+      const target = (fullEl && fullEl.dataset.filled) ? fullEl
+                   : (trueEl && trueEl.dataset.filled) ? trueEl : null;
+      if (!target) return;
 
-      const title = trueContent.querySelector('.myth-title');
+      [normal, trueEl, fullEl].forEach(el => { if (el) el.style.display = 'none'; });
+      target.style.display = 'block';
+
+      const title = target.querySelector('.myth-title');
       const tabBtn = document.getElementById('myth-tab-btn');
       if (title && tabBtn) tabBtn.textContent = title.textContent;
     }
