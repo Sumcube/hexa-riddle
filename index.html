@@ -1451,6 +1451,15 @@
       max-width: 160px;
       height: auto;
     }
+    .move-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+    #cube-move-display[readonly] {
+      background: #e5e7eb;
+      cursor: not-allowed;
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -2204,6 +2213,8 @@
     let timerInterval = null;
     let solveTimes = [];
     let isScrambling = false;
+    let isAutoRunning = false;  // 貼り付け・Enterによる自動入力中
+    let animToken = 0;          // 回転アニメーションの世代番号（初期化で古い回転を止める）
     let isCubeSecretMode = false; // シークレットモードフラグ
     let secretStationInput = '';  // ディスプレイに入力された山手線駅名を保持
 
@@ -2286,7 +2297,7 @@
       cubeGroup = new THREE.Group();
       pivotGroup = new THREE.Group();
       cubeScene.add(cubeGroup);
-      cubeScene.add(pivotGroup);
+      cubeGroup.add(pivotGroup);
 
       buildCubies();
       setupCameraDrag(wrap);
@@ -2307,6 +2318,15 @@
     window.addEventListener('resize', resizeCubeRenderer);
 
     function buildCubies() {
+      // 回転中のアニメーションを止め、回転用グループに残ったブロックを片付ける
+      animToken++;
+      isAnimatingMove = false;
+      isAutoRunning = false;
+      if (pivotGroup) {
+        while (pivotGroup.children.length) pivotGroup.remove(pivotGroup.children[0]);
+        pivotGroup.rotation.set(0, 0, 0);
+        updateInputLock();
+      }
       cubies.forEach(c => cubeGroup.remove(c));
       cubies = [];
       const geom = new THREE.BoxGeometry(0.94, 0.94, 0.94);
@@ -2353,7 +2373,6 @@
         prevY = e.clientY;
         cubeGroup.rotation.y += dx * 0.012;
         cubeGroup.rotation.x += dy * 0.012;
-        pivotGroup.rotation.copy(cubeGroup.rotation);
       });
       window.addEventListener('pointerup', () => { isDragging = false; });
     }
@@ -2371,6 +2390,7 @@
 
     function enqueueMoves(moveStr, options = {}) {
       if (!isCubeInitialized) initCube3D();
+      if (isInputLocked()) return;
       const moves = parseMoveString(moveStr);
       if (moves.length === 0) return;
 
@@ -2390,6 +2410,10 @@
       if (display && !options.skipDisplay && !hasStation) {
         display.value = currentRaw ? `${currentRaw} ${moves.join(' ')}` : moves.join(' ');
         display.scrollTop = display.scrollHeight;
+      }
+        if (options.auto) {
+        isAutoRunning = true;
+        updateInputLock();
       }
 
       // 回転アニメーション実行
@@ -2463,8 +2487,27 @@
       document.getElementById('stat-single').textContent = '-';
       document.getElementById('stat-ao5').textContent = '-';
     }
+  　 /* 回転記号ボタンとディスプレイを受け付けない状態か */
+    function isInputLocked() {
+      return isScrambling || isAutoRunning || (cubeMode === 'timer' && timerState === 'solved');
+    }
+
+    /* ロック状態をボタンとディスプレイに反映 */
+    function updateInputLock() {
+      const locked = isInputLocked();
+      document.querySelectorAll('.move-btn').forEach(b => { b.disabled = locked; });
+      const display = document.getElementById('cube-move-display');
+      if (display) display.readOnly = locked;
+    }
     function processMoveQueue() {
-      if (isAnimatingMove || moveQueue.length === 0) return;
+      if (isAnimatingMove) return;
+      if (moveQueue.length === 0) {
+        if (isAutoRunning) {
+          isAutoRunning = false;
+          updateInputLock();
+        }
+        return;
+      }
       const next = moveQueue.shift();
       performSingleAnimatedMove(next.move, next.speed, next.silent);
     }
@@ -2536,49 +2579,48 @@
 
       const angle = baseAngle * mult;
       const targetCubies = cubies.filter(layerFilter);
-      pivotGroup.rotation.copy(cubeGroup.rotation);
-      pivotGroup.updateMatrixWorld();
+      const myToken = animToken;
 
+      pivotGroup.rotation.set(0, 0, 0);
       targetCubies.forEach(c => {
         cubeGroup.remove(c);
         pivotGroup.add(c);
       });
 
+      const axisVec = new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0);
       const startTime = performance.now();
-      const baseRot = { x: pivotGroup.rotation.x, y: pivotGroup.rotation.y, z: pivotGroup.rotation.z };
 
       function step(now) {
-        const elapsed = now - startTime;
-        const t = Math.min(elapsed / durationMs, 1);
-        const ease = 1 - Math.pow(1 - t, 2);
+        if (myToken !== animToken) return; // 初期化やスクランブルで中断された回転は捨てる
 
-        pivotGroup.rotation.set(baseRot.x, baseRot.y, baseRot.z);
-        pivotGroup.rotateOnAxis(
-          new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0),
-          angle * ease
-        );
+        const t = Math.min((now - startTime) / durationMs, 1);
+        const ease = 1 - Math.pow(1 - t, 2);
+        pivotGroup.rotation.set(0, 0, 0);
+        pivotGroup.rotateOnAxis(axisVec, angle * ease);
 
         if (t < 1) {
           requestAnimationFrame(step);
-        } else {
-          pivotGroup.updateMatrixWorld();
-          targetCubies.forEach(c => {
-            c.applyMatrix4(pivotGroup.matrixWorld);
-            const inv = new THREE.Matrix4().copy(cubeGroup.matrixWorld).invert();
-            c.applyMatrix4(inv);
-            c.position.set(Math.round(c.position.x), Math.round(c.position.y), Math.round(c.position.z));
-            pivotGroup.remove(c);
-            cubeGroup.add(c);
-          });
-          isAnimatingMove = false;
-
-          if (cubeMode === 'timer' && !isScrambling && timerState === 'running') {
-            if (checkIsCubeSolved()) {
-              stopSolveTimer();
-            }
-          }
-          processMoveQueue();
+          return;
         }
+
+        // 回転完了：ブロックをキューブ本体に戻し、位置と向きを整数に揃える
+        pivotGroup.updateMatrix();
+        targetCubies.forEach(c => {
+          c.applyMatrix4(pivotGroup.matrix);
+          c.updateMatrix();
+          const e = c.matrix.elements;
+          for (let i = 0; i < 16; i++) e[i] = Math.round(e[i]);
+          c.matrix.decompose(c.position, c.quaternion, c.scale);
+          pivotGroup.remove(c);
+          cubeGroup.add(c);
+        });
+        pivotGroup.rotation.set(0, 0, 0);
+        isAnimatingMove = false;
+
+        if (cubeMode === 'timer' && !isScrambling && timerState === 'running') {
+          if (checkIsCubeSolved()) stopSolveTimer();
+        }
+        processMoveQueue();
       }
       requestAnimationFrame(step);
     }
@@ -2637,6 +2679,7 @@
       });
 
       moveDisplayEl.addEventListener('paste', e => {
+        if (isInputLocked()) { e.preventDefault(); return; }
         const pasted = (e.clipboardData || window.clipboardData).getData('text').trim();
         // 貼り付け内容が山手線の駅名ならそのままディスプレイに残す
         if (isYamanoteStation(pasted)) {
@@ -2646,13 +2689,14 @@
         e.preventDefault();
         const moves = parseMoveString(pasted);
         if (moves.length > 0) {
-          enqueueMoves(moves.join(' '), { speed: 260 });
+        enqueueMoves(moves.join(' '), { speed: 260, auto: true });
         }
       });
 
       moveDisplayEl.addEventListener('keydown', e => {
         if (e.isComposing || e.keyCode === 229) return;
         if (e.key === 'Enter') {
+          if (isInputLocked()) { e.preventDefault(); return; }
           e.preventDefault();
           const lines = moveDisplayEl.value.trim().split('\n');
           const lastLine = lines[lines.length - 1].trim();
@@ -2664,7 +2708,7 @@
           const moves = parseMoveString(lastLine);
           if (moves.length > 0) {
             moveDisplayEl.value = lines.slice(0, -1).join('\n');
-            enqueueMoves(moves.join(' '), { speed: 300 });
+            enqueueMoves(moves.join(' '), { speed: 300, auto: true });
           }
         }
       });
@@ -2738,7 +2782,9 @@
 
       document.getElementById('cube-timer-val').textContent = '0.00';
 
+      isAutoRunning = false;
       isScrambling = true;
+      updateInputLock();
       timerState = 'scrambling';
       scramble.forEach(m => {
         moveQueue.push({
@@ -2753,6 +2799,7 @@
           clearInterval(waitScramble);
           isScrambling = false;
           timerState = 'ready';
+          updateInputLock();
         }
       }, 40);
       processMoveQueue();
@@ -2770,6 +2817,7 @@
        function stopSolveTimer() {
       clearInterval(timerInterval);
       timerState = 'solved';
+      updateInputLock();
       const finalSec = (performance.now() - timerStartTime) / 1000;
       document.getElementById('cube-timer-val').textContent = finalSec.toFixed(2);
       playSuccessSound();
