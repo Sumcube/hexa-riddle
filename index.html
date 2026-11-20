@@ -1878,6 +1878,7 @@
 <!-- オールクリア画面 -->
   <div id="allclear-overlay">
     <div class="allclear-title">すべての謎を解き明かした！</div>
+    <div id="allclear-sub" class="allclear-sub"></div>
     <button type="button" class="tweet-btn" onclick="shareAllClear()">結果をポストする</button>
     <button type="button" class="allclear-close" onclick="closeAllClear()">閉じる</button>
   </div>
@@ -2387,6 +2388,7 @@
     let secretCheckTimer = null;
     let solveMoveLog = [];
     let secretScramble = '';
+    let secretSolves = [];
 
     function enqueueMoves(moveStr, options = {}) {
       if (!isCubeInitialized) initCube3D();
@@ -2449,11 +2451,12 @@
       }
     }
 
-        function activateSecretCubeMode() {
+      function activateSecretCubeMode() {
       isCubeSecretMode = true;
       secretStationInput = '';
       secretMoveHistory = [];
       solveMoveLog = [];
+      secretSolves = [];
       playSuccessSound();
 
       cubeMode = 'timer';
@@ -2734,6 +2737,7 @@
       isCubeSecretMode = false;
       if (wasSecret) {
         solveTimes = [];
+        secretSolves = [];
         resetTimerStats();
       }
 
@@ -2826,10 +2830,13 @@
       const ao5 = updateTimerStats();
       const solveMsg = document.getElementById('cube-solve-msg');
 
-           // シークレットモード：Ao5 が 7.2秒未満なら、最後の手順をサーバーで確認
+         // シークレットモード：直近5回の記録をサーバーに送り、判定はサーバーに任せる
       if (isCubeSecretMode) {
-        if (ao5 !== null && ao5 < 7.2) {
-          askServer('final', solveMoveLog.join(' ')).then(async r => {
+        secretSolves.push({ time: finalSec, moves: solveMoveLog.join(' ') });
+        if (secretSolves.length > 5) secretSolves.shift();
+
+        if (secretSolves.length === 5) {
+          askServer('final', secretSolves).then(async r => {
             if (!r.ok) return;
             if (solveMsg) {
               solveMsg.className = 'msg-box correct';
@@ -2853,10 +2860,6 @@
         }
         await refreshContent();
       });
-      const page6_2 = document.getElementById('diary-page6-entry-2');
-      if (page6_2) page6_2.style.display = 'block';
-      isIndigoSecretUnlocked = true;
-      saveProgress('diary6_final', true);
     }
       function showAllClear(ao5, subText) {
       saveProgress('allClear', true);
