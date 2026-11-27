@@ -3230,7 +3230,6 @@
         return;
       }
 
-      // Three.js でローディング用ミニキューブを描画・回転
       if (typeof THREE !== 'undefined') {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
@@ -3243,6 +3242,10 @@
         cubeBox.appendChild(renderer.domElement);
 
         const miniGroup = new THREE.Group();
+        const miniPivot = new THREE.Group();   // 面を回すための入れ物
+        miniGroup.add(miniPivot);
+        const miniCubies = [];
+
         const geom = new THREE.BoxGeometry(0.92, 0.92, 0.92);
         for (let x = -1; x <= 1; x++) {
           for (let y = -1; y <= 1; y++) {
@@ -3260,18 +3263,69 @@
               const edges = new THREE.EdgesGeometry(geom);
               m.add(new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000 })));
               miniGroup.add(m);
+              miniCubies.push(m);
             }
           }
         }
         scene.add(miniGroup);
 
-        function animateLoadingCube() {
+        // ランダムに面を回す（スクランブル演出）
+        const TURN_MS = 180;   // 1手の回転にかける時間
+        const GAP_MS = 120;    // 次の手までの間隔
+        const axes = ['x', 'y', 'z'];
+        let turn = null;
+        let nextTurnAt = performance.now() + 200;
+
+        function startRandomTurn(now) {
+          const axis = axes[Math.floor(Math.random() * 3)];
+          const layer = Math.random() < 0.5 ? -1 : 1;
+          const dir = Math.random() < 0.5 ? -1 : 1;
+          const targets = miniCubies.filter(c => Math.round(c.position[axis]) === layer);
+          miniPivot.rotation.set(0, 0, 0);
+          targets.forEach(c => { miniGroup.remove(c); miniPivot.add(c); });
+          turn = {
+            axisVec: new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0),
+            angle: dir * Math.PI / 2,
+            start: now,
+            targets
+          };
+        }
+
+        function finishTurn() {
+          miniPivot.updateMatrix();
+          turn.targets.forEach(c => {
+            c.applyMatrix4(miniPivot.matrix);
+            c.updateMatrix();
+            const e = c.matrix.elements;
+            for (let i = 0; i < 16; i++) e[i] = Math.round(e[i]);
+            c.matrix.decompose(c.position, c.quaternion, c.scale);
+            miniPivot.remove(c);
+            miniGroup.add(c);
+          });
+          miniPivot.rotation.set(0, 0, 0);
+          turn = null;
+        }
+
+        function animateLoadingCube(now) {
           loadingAnimId = requestAnimationFrame(animateLoadingCube);
+
+          if (!turn && now >= nextTurnAt) startRandomTurn(now);
+          if (turn) {
+            const t = Math.min((now - turn.start) / TURN_MS, 1);
+            const ease = 1 - Math.pow(1 - t, 2);
+            miniPivot.rotation.set(0, 0, 0);
+            miniPivot.rotateOnAxis(turn.axisVec, turn.angle * ease);
+            if (t >= 1) {
+              finishTurn();
+              nextTurnAt = now + GAP_MS;
+            }
+          }
+
           miniGroup.rotation.y += 0.045;
           miniGroup.rotation.x += 0.025;
           renderer.render(scene, camera);
         }
-        animateLoadingCube();
+        loadingAnimId = requestAnimationFrame(animateLoadingCube);
       }
 
       // 2秒後に「Now Loading...」を消して「六面世界からの脱出」タイトル＆スタート画面へ
@@ -3288,7 +3342,11 @@
 
       // 一度でも通常モードで始めた人はハードモードを選べない
       if (newMode === 'hard' && hasPlayedNormal()) return;
-      if (newMode === 'normal') {
+
+      // まだ通常モードで始めたことがない人には、最初の1回だけ確認する
+      if (newMode === 'normal' && !hasPlayedNormal()) {
+        const ok = confirm('一度通常モードでスタートすると、ハードモードは選択できなくなります。\n本当によろしいですか？');
+        if (!ok) return;
         localStorage.setItem(NORMAL_PLAYED_KEY, '1');
         updateHardButton();
       }
