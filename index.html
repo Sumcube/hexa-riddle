@@ -1507,6 +1507,37 @@
       background: rgba(127, 29, 29, 0.25);
       color: #fca5a5;
     }
+      .author-box {
+      max-width: 680px;
+      margin: 0 auto;
+      font-size: 1rem;
+      line-height: 1.9;
+      color: #e2e8f0;
+    }
+    .author-box p {
+      margin-bottom: 18px;
+    }
+    .author-box strong {
+      color: #ffd875;
+    }
+    .author-note {
+      font-size: 0.85rem;
+      color: #9aa1b6;
+    }
+    .author-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      margin-top: 28px;
+    }
+    .author-x-link {
+      color: #93c5fd;
+      text-decoration: underline;
+    }
+    .share-hard { display: none; }
+    body.hard-mode .share-normal { display: none; }
+    body.hard-mode .share-hard { display: inline-block; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -1586,6 +1617,7 @@
     <button id="q5-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q5', this)">第五問</button>
     <button id="q6-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('q6', this)">第六問</button>
     <button id="final-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('final', this)">最終問題</button>
+    <button id="author-tab-btn" class="tab-btn" style="display: none !important;" onclick="switchTab('author', this)">作者メッセージ</button>
   </nav>
 <main>
   <!-- タブ1: 創世記 / 真・六面世界の創世記：序章 -->
@@ -1926,7 +1958,7 @@
       
     <!-- 最終問題（文章のみ） -->
         <section id="tab-final" class="tab-content"><div id="slot-final"></div></section>
-     
+        <section id="tab-author" class="tab-content"><div id="slot-author"></div></section>
   </main>
 <!-- オールクリア画面 -->
   <div id="allclear-overlay">
@@ -1962,6 +1994,7 @@
     function updateModeBadge() {
       const badge = document.getElementById('mode-badge');
       if (badge) badge.style.display = isHardMode() ? 'inline-block' : 'none';
+      document.body.classList.toggle('hard-mode', isHardMode());
     }
     const NORMAL_PLAYED_KEY = 'hexa_normal_played';
     function hasPlayedNormal() {
@@ -2073,6 +2106,7 @@
         if (next4) next4.style.display = 'block';
         showTabBtn('final-tab-btn');
       }
+      if (hasStage('final')) showTabBtn('author-tab-btn');
     }
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playTone(freq, type = 'sine', duration = 0.15) {
@@ -3022,10 +3056,12 @@
     }
 
     function shareAllClear() {
+      const GAME_URL = 'https://sumcube.github.io/hexa-riddle/';
       const text = isHardMode()
         ? '六面世界からの脱出のすべての謎を【ハードモード】で解き明かした！\n#六面世界からの脱出'
         : '六面世界からの脱出のすべての謎を解き明かした！\n#六面世界からの脱出';
-      const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+      const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text)
+                + '&url=' + encodeURIComponent(GAME_URL);
       window.open(url, '_blank', 'noopener');
     }
 
